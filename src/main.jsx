@@ -64,7 +64,7 @@ function Home() {
 }
 
 function Destinations() {
-  return <><Hero image="destinations-hero.webp" alternate="destinations-slide.webp" label="Botswana & beyond" title="Follow the river." accent="Go a little further." text="From the Chobe riverfront to Victoria Falls, explore the places that can shape your itinerary."/><section className="wrap section"><div data-reveal><Eyebrow>Choose a destination</Eyebrow><h2>Find your <em>starting point.</em></h2></div><Cards items={destinations} kind="destination"/><p className="caption">Safari imagery is illustrative. Ask our team about locations and seasonal conditions.</p></section><Callout/></>
+  return <><Hero image="destinations-hero.webp" alternate="destinations-slide.webp" label="Botswana & beyond" title="Follow the river." accent="Go a little further." text="From the Chobe riverfront to Victoria Falls, explore the places that can shape your itinerary."/><section className="wrap section destination-section"><div className="section-head" data-reveal><div><Eyebrow>Choose a destination</Eyebrow><h2>Find your <em>starting point.</em></h2></div></div><Cards items={destinations} kind="destination"/><p className="caption">Safari imagery is illustrative. Ask our team about locations and seasonal conditions.</p></section><Callout/></>
 }
 
 function Experiences() {
@@ -75,7 +75,7 @@ function Shuttles() {
   return <>
     <Hero image="transfer.webp" label="Shuttle services" title="Airport pickups." accent="Cross-border transfers." text="Arrange an airport pickup or drop-off, or plan a transfer to the Caprivi Strip, Victoria Falls or Katima Mulilo."/>
     <section className="wrap section shuttle-routes" aria-labelledby="shuttle-routes-title">
-      <div data-reveal><Eyebrow>Airport & cross-border routes</Eyebrow><h2 id="shuttle-routes-title">Where are you <em>headed?</em></h2></div>
+      <div className="section-head" data-reveal><div><Eyebrow>Airport & cross-border routes</Eyebrow><h2 id="shuttle-routes-title">Where are you <em>headed?</em></h2></div></div>
       <div className="shuttle-grid">
         {transferRoutes.map(({name,area,text,image,small,alt}) => <article className="shuttle-card" key={name} data-reveal>
           <div className="shuttle-card-image">
@@ -136,10 +136,26 @@ function Layout() {
       const slide = window.matchMedia('(min-width: 681px)').matches
       const sections = main.current.querySelectorAll('[data-reveal]')
       sections.forEach((el, index) => {
+        if (pathname === '/destinations' && el.classList.contains('card')) {
+          const edges = ['inset(100% 0 0 0)', 'inset(0 100% 0 0)', 'inset(0 0 0 100%)', 'inset(0 0 100% 0)', 'inset(12% 12% 12% 12%)']
+          const timeline = gsap.timeline({scrollTrigger:{trigger:el,start:'top 94%',once:true}})
+          timeline
+            .from(el, {y:26, opacity:0, duration:.65, ease:'power2.out', clearProps:'transform,opacity'})
+            .fromTo(el.querySelector('.card-carousel'), {clipPath:edges[(index - 1) % edges.length]}, {clipPath:'inset(0% 0% 0% 0%)', duration:.84, ease:'power3.out', clearProps:'clipPath'}, 0)
+            .from(el.querySelector('.card-info'), {y:22, opacity:0, duration:.56, ease:'power2.out', clearProps:'transform,opacity'}, .18)
+          return
+        }
+        if (pathname === '/shuttles' && el.classList.contains('shuttle-card')) {
+          const featured = el === main.current.querySelector('.shuttle-card')
+          const timeline = gsap.timeline({scrollTrigger:{trigger:el,start:'top 94%',once:true}})
+          timeline
+            .from(el, {x:slide ? (featured ? -36 : (index % 2 ? -28 : 28)) : 0, y:slide ? 12 : 28, opacity:0, duration:.72, ease:'power3.out', clearProps:'transform,opacity'})
+            .from(el.querySelector('.shuttle-card-image img'), {scale:1.1, duration:.88, ease:'power2.out', clearProps:'transform'}, 0)
+            .from(el.querySelector('.shuttle-card-body'), {y:16, opacity:0, duration:.58, ease:'power2.out', clearProps:'transform,opacity'}, .13)
+          return
+        }
         let start = {y: 24}
-        if (pathname === '/destinations' && el.classList.contains('card')) start = {y: 38, scale: .96}
         if (pathname === '/experiences' && el.classList.contains('feature')) start = slide ? {x: index % 2 ? 46 : -46} : {y: 24}
-        if (pathname === '/shuttles' && el.classList.contains('shuttle-card')) start = slide ? {x: index % 2 ? -32 : 32, y: 12} : {y: 22}
         if (pathname === '/about' && el.classList.contains('tree-branch')) start = {y: 30, scale: .97}
         gsap.from(el, {...start, opacity:0, duration:.8, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 94%',once:true}})
       })
