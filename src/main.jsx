@@ -1,16 +1,17 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Binoculars, Compass, Map, MapPin, Menu, Plane, TreePine, Waves, X } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { destinations, experiences, transferRoutes, media } from './data'
-import { Plan } from './requests'
 import { EmailLinks, SocialLinks, TelephoneLink, WhatsAppButton } from './Contact'
 import ImageCarousel from './ImageCarousel'
 import './style.css'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const Plan = lazy(() => import('./requests').then(({Plan}) => ({default:Plan})))
 
 const links = [['/', 'Home'], ['/destinations', 'Destinations'], ['/experiences', 'Experiences'], ['/shuttles', 'Shuttles'], ['/about', 'About']]
 export const planLink = (key, value, mode = 'booking') => '/plan?' + new URLSearchParams({ mode, [key]: value })
@@ -124,8 +125,8 @@ function Layout() {
     const motion = gsap.matchMedia()
     motion.add('(prefers-reduced-motion: no-preference)', () => {
       const intro = main.current.querySelectorAll('[data-intro]')
-      const starts = {'/': {y: 32}, '/destinations': {x: -30}, '/experiences': {y: 24, scale: .97}, '/shuttles': {x: 26}, '/about': {y: 28, clipPath:'inset(0 0 100% 0)'}, '/plan': {x: 20}}
-      if (intro.length) gsap.from(intro, { ...starts[pathname], opacity: 0, duration:.85, stagger:.11, ease:'power3.out' })
+      const starts = {'/': {y: 32}, '/destinations': {x: -30}, '/experiences': {y: 24, scale: .97}, '/shuttles': {x: 26}, '/about': {y: 28, clipPath:'inset(0 0 100% 0)'}}
+      if (pathname !== '/plan' && intro.length) gsap.from(intro, { ...starts[pathname], opacity: 0, duration:.85, stagger:.11, ease:'power3.out' })
       if (pathname === '/') gsap.from('.hero-carousel img', {scale:1.08, duration:1.8, ease:'power2.out'})
       const slide = window.matchMedia('(min-width: 681px)').matches
       const sections = main.current.querySelectorAll('[data-reveal]')
@@ -139,13 +140,12 @@ function Layout() {
       })
       const branches = main.current.querySelector('.tree-branches')
       if (branches) gsap.from(branches, {'--branch-progress':0,duration:1.15,ease:'power2.out',scrollTrigger:{trigger:branches,start:'top 88%',once:true}})
-      if (pathname === '/plan') gsap.from('.planning aside img', {clipPath:'inset(0 100% 0 0)', duration:1.1,ease:'power3.out',delay:.16})
     }, main)
     return () => motion.revert()
   }, [pathname])
 
   return <><header className={'header ' + (pathname === '/plan' || !links.some(([route]) => route === pathname) ? 'solid' : '')}><div className="wrap header-inner"><Link to="/" aria-label="Prestige Destination Tours home"><img src={media('logo.png')} alt="Prestige Destination Tours" className="logo"/></Link><button className="menu-toggle" onClick={() => setMenu(!menu)} aria-expanded={menu} aria-controls="site-nav" aria-label={menu ? 'Close menu' : 'Open menu'}>{menu ? <X/> : <Menu/>}</button><nav id="site-nav" className={menu ? 'open' : ''} aria-label="Main navigation">{links.map(([to,label]) => <NavLink key={to} end to={to} onClick={() => setMenu(false)}>{label}</NavLink>)}</nav><Link className="nav-cta" to="/plan?mode=booking" onClick={() => setMenu(false)}>Plan your trip <ArrowUpRight size={16}/></Link></div></header>
-  <main ref={main} id="main" className={'route-' + (pathname.slice(1) || 'home')}><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/shuttles" element={<Shuttles/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Plan/>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
+  <main ref={main} id="main" className={'route-' + (pathname.slice(1) || 'home')}><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/shuttles" element={<Shuttles/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Suspense fallback={<div className="wrap section" role="status">Loading trip planner…</div>}><Plan/></Suspense>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
   <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/shuttles">Shuttles & transfers</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><TelephoneLink/><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours <a href="https://futurifydesigns.com">Built by Futurify Designs <ArrowUpRight size={13}/></a></div></footer><WhatsAppButton/></>
 }
 createRoot(document.getElementById('root')).render(<HashRouter><Layout/></HashRouter>)

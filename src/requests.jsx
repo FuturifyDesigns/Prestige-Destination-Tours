@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
 import { Link, useSearchParams } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { ArrowRight, CalendarDays, Check, Mail, ShieldCheck } from 'lucide-react'
@@ -18,6 +19,15 @@ export function Plan() {
 }
 
 function PlanForm({ params, booking }) {
+  const planner = useRef(null)
+  useLayoutEffect(() => {
+    const motion = gsap.matchMedia()
+    motion.add('(prefers-reduced-motion: no-preference)', () => {
+      gsap.from('[data-intro]', {x:20, opacity:0, duration:.8, stagger:.11, ease:'power3.out'})
+      gsap.from('aside img', {clipPath:'inset(0 100% 0 0)', duration:1.1, ease:'power3.out', delay:.16})
+    }, planner)
+    return () => motion.revert()
+  }, [])
   const [experience, setExperience] = useState(params.get('experience') || '')
   const [result, setResult] = useState('')
   const [busy, setBusy] = useState(false)
@@ -83,7 +93,7 @@ function PlanForm({ params, booking }) {
   function fieldError(name) {
     return errors[name] && <span className="field-error" id={name + '-error'}>{errors[name]}</span>
   }
-  return <div className="wrap section planning">
+  return <div className="wrap section planning" ref={planner}>
     <aside data-intro><div className="eyebrow"><CalendarDays size={16} aria-hidden="true"/> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img src={media('plan-hero.webp')} alt="Binoculars and a map on a table overlooking Botswana wetlands"/><div className="direct"><EmailLinks/><TelephoneLink/></div></aside>
     <section className="form-panel" data-intro>
       <div className="tabs" aria-label="Request type"><Link aria-current={booking ? undefined : 'page'} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'enquiry'})}>Enquiry</Link><Link aria-current={booking ? 'page' : undefined} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'booking'})}>Booking request</Link></div>

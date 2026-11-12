@@ -214,7 +214,6 @@ textarea{resize:vertical}
 .slide-controls{pointer-events:auto;position:absolute;z-index:2;right:12px;top:12px;display:flex;align-items:center;background:#13271fe8;color:#fff5e4;border:1px solid #f4d39880;border-radius:4px;font-size:.72rem}
 .slide-controls button{display:grid;place-items:center;min-height:40px;min-width:40px;background:transparent;border:0;color:inherit;padding:0}
 .slide-controls button:hover,.slide-controls button:focus-visible{background:#dfb373;color:#152c23}
-.slide-controls>span{min-width:28px;text-align:center}
 .hero-carousel .slide-controls{top:auto;right:max(5%,calc((100% - 1240px)/2));bottom:24px}
 .home-hero .slide-controls{bottom:77px}
 .tree-branch,.route-experiences .experience-list article,.card{transition:box-shadow .25s,border-color .25s}
