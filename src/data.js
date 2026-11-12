@@ -21,7 +21,7 @@ export const experiences = [
 ]
 
 export const transferRoutes = [
-  { name: 'Airport pickup or drop-off', area: 'Airport shuttle', image: 'shuttle-airport.webp', small: 'shuttle-airport-small.webp', alt: 'White shuttle van and suitcase at an airport pickup curb', text: 'Request a ride between the airport and your hotel, lodge, or meeting point. Include your flight number and pickup time if you have them.' },
+  { name: 'Airport pickup or drop-off', area: 'Airport shuttle', image: 'shuttle-airport.webp', small: 'shuttle-airport-small.webp', alt: 'Branded Prestige shuttle van parked outside a covered entrance', text: 'Request a ride between the airport and your hotel, lodge, or meeting point. Include your flight number and pickup time if you have them.' },
   { name: 'Caprivi Strip', area: 'Namibia', image: 'shuttle-caprivi.webp', small: 'shuttle-caprivi-small.webp', alt: 'Aerial view of the Caprivi Strip floodplains and waterways', text: 'Plan onward travel into Namibia’s Caprivi Strip. Tell us your pickup point and your final stop.' },
   { name: 'Victoria Falls', area: 'Zimbabwe', image: 'shuttle-victoria-falls.webp', small: 'shuttle-victoria-falls-small.webp', alt: 'Sun setting over Victoria Falls and its mist-filled gorge', text: 'Arrange a cross-border transfer to or from Victoria Falls and share your preferred pickup and drop-off points.' },
   { name: 'Katima Mulilo', area: 'Namibia', image: 'shuttle-katima-mulilo.webp', alt: 'Rocky river rapids beneath the bridge at Katima Mulilo', text: 'Request a transfer to or from Katima Mulilo in Namibia’s Zambezi Region.' },
