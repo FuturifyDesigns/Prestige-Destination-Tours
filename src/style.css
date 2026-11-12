@@ -215,11 +215,6 @@ textarea{resize:vertical}
 .card-link{display:flex;align-items:end;align-self:stretch;width:100%}
 .card-link:focus-visible{outline-offset:-5px}
 .tree-branch>.tree-carousel{padding:0;overflow:hidden}
-.slide-controls{pointer-events:auto;position:absolute;z-index:2;right:12px;top:12px;color:#fff5e4}
-.slide-controls button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #f4d39880;border-radius:50%;background:#13271fdf;color:inherit;padding:0}
-.slide-controls button:hover,.slide-controls button:focus-visible{background:#dfb373;color:#152c23}
-.hero-carousel .slide-controls{top:auto;right:max(5%,calc((100% - 1240px)/2));bottom:24px}
-.home-hero .slide-controls{bottom:77px}
 .tree-branch,.route-experiences .experience-list article,.card{transition:box-shadow .25s,border-color .25s}
 .tree-branch:hover,.tree-branch:focus-within,.route-experiences .experience-list article:hover,.route-experiences .experience-list article:focus-within{border-color:#b49358;box-shadow:0 9px 28px #34261226}
 .tree-carousel img,.route-experiences .experience-list img{transition:filter .3s,transform .4s}
@@ -231,7 +226,6 @@ textarea{resize:vertical}
 .admin-brand img{width:125px}
 .recovery-note{margin:0;font-size:.85rem;color:#405341}
 .sign-in .text-link{background:none;border:0;border-bottom:1px solid #ad875b;padding:3px 0}
-@media(max-width:680px){.slide-controls button{height:44px;width:44px}.home-hero .slide-controls{bottom:70px}}
 @media(prefers-reduced-motion:reduce){.card:hover img,.card:focus-within img,.tree-branch:hover img,.tree-branch:focus-within img{transform:none}}
 
 .experience-carousel{overflow:hidden}

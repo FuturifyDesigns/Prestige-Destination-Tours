@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { Pause, Play } from 'lucide-react'
 import { media } from './data'
 import widths from './carousel-widths.json'
 
@@ -22,9 +21,6 @@ export default function ImageCarousel({ images, label, variant, priority = false
   const [active, setActive] = useState(0)
   const [visible, setVisible] = useState(false)
   const [documentVisible, setDocumentVisible] = useState(!document.hidden)
-  const [playing, setPlaying] = useState(() => !matchMedia('(prefers-reduced-motion: reduce)').matches)
-  const [interacting, setInteracting] = useState(false)
-  const [focused, setFocused] = useState(false)
   const count = images.length
   const image = images[active]
   const next = (active + 1) % count
@@ -33,57 +29,39 @@ export default function ImageCarousel({ images, label, variant, priority = false
 
   useEffect(() => {
     if (count < 2) return
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.intersectionRatio >= .25), {threshold:.25})
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), {threshold:0.1})
     observer.observe(carousel.current)
-    const motion = matchMedia('(prefers-reduced-motion: reduce)')
-    const updateMotion = event => setPlaying(!event.matches)
     const updateVisibility = () => setDocumentVisible(!document.hidden)
-    motion.addEventListener('change', updateMotion)
     document.addEventListener('visibilitychange', updateVisibility)
     return () => {
       observer.disconnect()
-      motion.removeEventListener('change', updateMotion)
       document.removeEventListener('visibilitychange', updateVisibility)
     }
   }, [count])
 
   useEffect(() => {
-    if (count < 2 || !visible || !documentVisible || !playing || interacting || focused) return
+    if (count < 2 || !visible || !documentVisible) return
     let cancelled = false
+    const preload = new Image()
+    const { src, srcSet } = imageSource(nextSrc)
+    preload.fetchPriority = 'low'
+    preload.sizes = sizes
+    if (srcSet) preload.srcset = srcSet
+    preload.src = src
+    const ready = preload.decode().catch(() => {})
     const timer = window.setTimeout(async () => {
-      const preload = new Image()
-      const { src, srcSet } = imageSource(nextSrc)
-      preload.fetchPriority = 'low'
-      preload.sizes = sizes
-      if (srcSet) preload.srcset = srcSet
-      preload.src = src
-      await preload.decode().catch(() => {})
+      await ready
       if (!cancelled && preload.naturalWidth) setActive(next)
-    }, priority ? 6500 : 8500)
+    }, priority ? 5500 : 7000)
     return () => {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [count, visible, documentVisible, playing, interacting, focused, next, nextSrc, sizes, priority])
+  }, [count, visible, documentVisible, next, nextSrc, sizes, priority])
 
-
-  return <div
-    ref={carousel}
-    className={'image-carousel ' + variant}
-    role={count > 1 ? 'group' : undefined}
-    aria-label={count > 1 ? label : undefined}
-    onPointerEnter={event => {if (event.pointerType === 'mouse') setInteracting(true)}}
-    onPointerLeave={() => setInteracting(false)}
-    onFocusCapture={() => setFocused(true)}
-    onBlurCapture={event => {if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false)}}
-  >
+  return <div ref={carousel} className={'image-carousel ' + variant}
+    role={count > 1 ? 'group' : undefined} aria-label={count > 1 ? label : undefined}>
     <img key={image.src} {...imageSource(image.src)} sizes={sizes} alt={image.alt ?? ''}
-      loading={priority && active === 0 ? 'eager' : 'lazy'}
-      fetchPriority={priority && active === 0 ? 'high' : undefined} decoding="async"/>
-    {count > 1 && <div className="slide-controls">
-      <button type="button" onClick={() => setPlaying(value => !value)} aria-label={(playing ? 'Pause slideshow for ' : 'Play slideshow for ') + label}>
-        {playing ? <Pause size={15} aria-hidden="true"/> : <Play size={15} aria-hidden="true"/>}
-      </button>
-    </div>}
+      loading={priority ? 'eager' : 'lazy'} fetchPriority={priority && active === 0 ? 'high' : undefined} decoding="async"/>
   </div>
 }
