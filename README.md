@@ -27,6 +27,6 @@ Public visitors can submit requests. Staff can read requests and change their st
 
 ## Publish to GitHub Pages
 
-Put the project contents at the root of `FuturifyDesigns/Prestige-Destination-Tours` and push to `main`. In GitHub, choose **Settings → Pages → Source → GitHub Actions** and check the **Deploy to GitHub Pages** run. The project uses relative asset paths and hash routing to work on the repository’s Pages URL.
+Put the project contents at the root of `FuturifyDesigns/Prestige-Destination-Tours` and push to `main`. In GitHub, choose **Settings → Pages → Source → GitHub Actions** and check the **Deploy to GitHub Pages** run. The project uses relative asset paths and generated route entry pages to work on the repository’s Pages URL.
 
 The transparent logo and favicon are in `public/`. Web-optimized Safari illustrations and supplied shuttle photographs are used throughout the site.

@@ -5,7 +5,10 @@ export const tiktok = 'https://www.tiktok.com/@prestige.destinat'
 export const phone = '+267 77968662'
 export const telephone = 'tel:+26777968662'
 export const whatsapp = 'https://wa.me/26777968662'
-export const media = name => import.meta.env.BASE_URL + name
+// Both the source modules and the built assets live one directory below the site root.
+const moduleUrl = new URL(import.meta.url)
+export const siteBase = new URL('../', moduleUrl).pathname
+export const media = name => siteBase + name
 export const destinations = [
   { name: 'Chobe', type: 'Wildlife & riverfront', image: 'chobe.webp', alternate: 'chobe-slide.webp', text: 'Follow the Chobe River through elephant country, with game drives and time on the water.' },
   { name: 'Okavango', type: 'Waterways & wilderness', image: 'delta.webp', alternate: 'okavango-slide.webp', text: 'Explore a landscape of winding channels, islands and floodplains on a journey shaped around the season.' },

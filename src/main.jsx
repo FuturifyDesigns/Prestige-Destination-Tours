@@ -1,23 +1,23 @@
 import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Binoculars, Compass, Map, MapPin, Menu, Plane, TreePine, Waves, X } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { destinations, experiences, transferRoutes, media } from './data'
+import { destinations, experiences, transferRoutes, media, siteBase } from './data'
 import { EmailLinks, SocialLinks, TelephoneLink, WhatsAppButton } from './Contact'
 import ImageCarousel from './ImageCarousel'
+import { cleanPath, navigation as links, pageEntries } from './routes'
 import './style.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const Plan = lazy(() => import('./requests').then(({Plan}) => ({default:Plan})))
 
-const links = [['/', 'Home'], ['/destinations', 'Destinations'], ['/experiences', 'Experiences'], ['/shuttles', 'Shuttles'], ['/about', 'About']]
 export const planLink = (key, value, mode = 'booking') => '/plan?' + new URLSearchParams({ mode, [key]: value })
 
 export function Eyebrow({ children }) {
-  const { pathname } = useLocation()
+  const pathname = cleanPath(useLocation().pathname)
   const Icon = {'/': Compass, '/destinations': Map, '/experiences': Binoculars, '/shuttles': Plane, '/about': TreePine}[pathname] ?? Compass
   return <div className="eyebrow"><Icon size={16} strokeWidth={1.7} aria-hidden="true"/>{children}</div>
 }
@@ -120,7 +120,7 @@ function About() {
 }
 
 function Layout() {
-  const { pathname } = useLocation()
+  const pathname = cleanPath(useLocation().pathname)
   const [menu, setMenu] = useState(false)
   const main = useRef()
   useLayoutEffect(() => {
@@ -169,4 +169,16 @@ function Layout() {
   <main ref={main} id="main" className={'route-' + (pathname.slice(1) || 'home')}><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/shuttles" element={<Shuttles/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Suspense fallback={<div className="wrap section" role="status">Loading trip planner…</div>}><Plan/></Suspense>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
   <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/shuttles">Shuttles & transfers</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><TelephoneLink/><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours <a href="https://futurifydesigns.com">Built by Futurify Designs <ArrowUpRight size={13}/></a></div></footer><WhatsAppButton/></>
 }
-createRoot(document.getElementById('root')).render(<HashRouter><Layout/></HashRouter>)
+const legacy = window.location.hash.startsWith('#/') ? window.location.hash.slice(1) : ''
+const legacyUrl = legacy.split('?')[0]
+const legacyPath = cleanPath(legacyUrl)
+if (legacyPath === '/admin') {
+  window.location.replace(siteBase + 'admin/')
+} else {
+  if (legacyUrl && (legacyPath === '/' && !legacyUrl.startsWith('//') || pageEntries.some(([route]) => route === legacyPath))) {
+    const query = legacy.slice(legacyUrl.length)
+    window.history.replaceState(window.history.state, '', siteBase + legacyPath.slice(1) + query)
+  }
+  createRoot(document.getElementById('root')).render(<BrowserRouter basename={siteBase}><Layout/></BrowserRouter>)
+}
+
