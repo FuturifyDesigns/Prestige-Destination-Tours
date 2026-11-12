@@ -136,3 +136,51 @@ textarea{resize:vertical}
 .social-links a:hover{background:#f3cd94;color:var(--deep)}
 .whatsapp-float{position:fixed;z-index:4;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#176044;color:#fff;box-shadow:0 4px 18px #1020174d;transition:background .2s,transform .2s}
 .whatsapp-float:hover{background:#0e4931;transform:translateY(-2px)}
+
+/* The public pages share the palette and typography, with layouts shaped by their content. */
+.route-destinations .hero-shade{background:linear-gradient(90deg,#10251ee8,#11251b85 53%,#12221c20),linear-gradient(0deg,#13271e60,transparent 35%)}
+.route-destinations .cards{grid-template-columns:repeat(6,minmax(0,1fr));gap:15px}
+.route-destinations .card{grid-column:span 2}
+.route-destinations .card:nth-child(-n+2){grid-column:span 3;min-height:460px}
+.route-destinations .callout{min-height:310px;background:#203b30}
+.route-experiences{background:#eee7d7}
+.route-experiences .hero-image{object-position:center 62%}
+.route-experiences .page-hero .hero-copy{padding-top:20px}
+.route-experiences .experience-list article{padding:clamp(14px,2.5vw,34px);background:#f9f5eb;border:1px solid var(--line)}
+.route-experiences .experience-list article:nth-child(even){grid-template-columns:1fr 1.22fr}
+.route-experiences .fleet{align-items:center;gap:clamp(24px,5vw,65px);padding:clamp(18px,4vw,55px);background:var(--green);color:var(--cream)}
+.route-experiences .fleet .eyebrow,.route-experiences .fleet em{color:#f0c88b}
+.route-experiences .fleet h2{font-size:clamp(2rem,3.7vw,3.6rem)}
+.route-experiences .fleet p{color:#f3e5cc}
+.route-about .hero-image{object-position:center 48%}
+.about-tree{--branch-line:#b59869;--branch-gap:55px}
+.tree-root{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;width:min(100%,850px);margin-inline:auto;background:var(--green);color:var(--cream)}
+.tree-root img{aspect-ratio:1.32;height:100%}
+.tree-root>div,.tree-branch>div{padding:clamp(20px,4vw,48px)}
+.tree-root .eyebrow,.tree-root em{color:#efc386}
+.tree-root h2{font-size:clamp(2.1rem,4vw,4rem)}
+.tree-root p,.tree-branch p{margin:0}
+.tree-branches{--branch-progress:1;position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding-top:var(--branch-gap)}
+.tree-branches::before{content:"";position:absolute;top:0;left:50%;height:calc(var(--branch-gap)/2);width:1px;background:var(--branch-line)}
+.tree-branches::after{content:"";position:absolute;top:calc(var(--branch-gap)/2);left:16.66%;right:16.66%;height:1px;background:var(--branch-line);transform:scaleX(var(--branch-progress))}
+.tree-branch{position:relative;border:1px solid var(--line);background:#fffaf0}
+.tree-branch::before{content:"";position:absolute;bottom:100%;left:50%;height:calc(var(--branch-gap)/2);width:1px;background:var(--branch-line)}
+.tree-branch img{aspect-ratio:1.6}
+.tree-branch>div{padding:clamp(18px,2.5vw,32px)}
+.tree-branch p{color:#4e584b}
+.route-about .callout{min-height:310px;background:#26352b}
+.route-plan{background:linear-gradient(125deg,#f1e8d5,#f9f5ec 64%)}
+.planning aside img{aspect-ratio:1.2;object-position:center 65%;border:1px solid #b49664;padding:5px}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 24px}
+.footer-bottom a{display:inline-flex;align-items:center;gap:5px;color:#f0c88b}
+.footer-bottom a:hover{text-decoration:underline}
+@media(max-width:900px){.route-destinations .cards{grid-template-columns:repeat(2,minmax(0,1fr))}.route-destinations .card,.route-destinations .card:nth-child(-n+2){grid-column:auto;min-height:360px}}
+@media(max-width:680px){
+.route-destinations .cards,.route-experiences .experience-list article:nth-child(even),.route-experiences .fleet,.tree-root,.tree-branches{grid-template-columns:1fr}
+.route-destinations .card,.route-destinations .card:nth-child(-n+2){min-height:340px}
+.tree-branches{padding:25px 0 0 22px;gap:15px}
+.tree-branches::before{left:5px;height:auto;bottom:30px}
+.tree-branches::after{display:none}
+.tree-branch::before{bottom:auto;top:29px;left:auto;right:100%;height:1px;width:18px}
+.tree-root img{aspect-ratio:1.7}
+}

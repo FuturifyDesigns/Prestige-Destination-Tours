@@ -43,30 +43,50 @@ function Cards({ items, kind }) {
   </Link>)}</div>
 }
 
-function Callout() {
-  return <section className="callout"><img src={media('dusk.webp')} alt="" loading="lazy"/><div data-reveal><Eyebrow>Plan your journey</Eyebrow><h2>Where would you <em>like to go?</em></h2><Button to="/plan?mode=enquiry">Talk to our team</Button></div></section>
+function Callout({ image }) {
+  return <section className="callout">{image && <img src={media(image)} alt="" loading="lazy"/>}<div data-reveal><Eyebrow>Plan your journey</Eyebrow><h2>Where would you <em>like to go?</em></h2><Button to="/plan?mode=enquiry">Talk to our team</Button></div></section>
 }
 
 function Home() {
   return <>
-    <Hero home image="hero.webp" label="Private safaris & tailored journeys" title="Botswana, at" accent="your own pace." text="Private guided safaris, river cruises and wilderness journeys shaped around the way you want to travel."/>
+    <Hero home image="home-hero.webp" label="Private safaris & tailored journeys" title="Botswana, at" accent="your own pace." text="Private guided safaris, river cruises and wilderness journeys shaped around the way you want to travel."/>
     <div className="ribbon"><div className="wrap">{[[Binoculars, 'Private guided safaris'], [Waves, 'River cruises'], [Compass, 'Tailored adventures']].map(([Icon, name]) => <Link key={name} to="/experiences"><Icon size={22} strokeWidth={1.4}/>{name}</Link>)}</div></div>
-    <section className="wrap section" id="discover"><div className="section-head" data-reveal><div><Eyebrow>Explore the region</Eyebrow><h2>Places worth <em>slowing down for.</em></h2></div><Link className="text-link" to="/destinations">All destinations <ArrowRight size={17}/></Link></div><Cards items={destinations.slice(0,3)} kind="destination"/></section>
+    <section className="wrap section" id="discover"><div className="section-head" data-reveal><div><Eyebrow>Explore the region</Eyebrow><h2>Places worth <em>slowing down for.</em></h2></div><Link className="text-link" to="/destinations">All destinations <ArrowRight size={17}/></Link></div><Cards items={destinations.slice(0,3).map((item,index) => ({...item,image:['home-chobe.webp','plan.webp','home-falls.webp'][index]}))} kind="destination"/></section>
     <section className="feature wrap section" data-reveal><img src={media('lodge.webp')} alt="A lantern-lit safari lodge overlooking wetlands at sunset" loading="lazy"/><div><Eyebrow>Travel with Prestige</Eyebrow><h2>Make the journey <em>your own.</em></h2><p>Start with a place you’ve always wanted to see, an experience you’re curious about, or the dates you have in mind. We’ll help shape the details around you.</p><Link className="text-link" to="/about">Meet Prestige <ArrowRight size={17}/></Link></div></section>
-    <Callout/>
+    <Callout image="hero.webp"/>
   </>
 }
 
 function Destinations() {
-  return <><Hero image="chobe.webp" label="Botswana & beyond" title="Follow the river." accent="Go a little further." text="From the Chobe riverfront to Victoria Falls, explore the places that can shape your itinerary."/><section className="wrap section"><div data-reveal><Eyebrow>Choose a destination</Eyebrow><h2>Find your <em>starting point.</em></h2></div><Cards items={destinations} kind="destination"/><p className="caption">Safari imagery is illustrative. Ask our team about locations and seasonal conditions.</p></section><Callout/></>
+  return <><Hero image="destinations-hero.webp" label="Botswana & beyond" title="Follow the river." accent="Go a little further." text="From the Chobe riverfront to Victoria Falls, explore the places that can shape your itinerary."/><section className="wrap section"><div data-reveal><Eyebrow>Choose a destination</Eyebrow><h2>Find your <em>starting point.</em></h2></div><Cards items={destinations} kind="destination"/><p className="caption">Safari imagery is illustrative. Ask our team about locations and seasonal conditions.</p></section><Callout/></>
 }
 
 function Experiences() {
-  return <><Hero image="river.webp" label="Tailored to you" title="On land." accent="On the water." text="Choose how to spend your time, from a private game drive to a cruise or a comfortable airport transfer."/><section className="wrap section experience-list">{experiences.map(item => <article className="feature" data-reveal key={item.name}><img src={media(item.image)} alt="" loading="lazy"/><div><Eyebrow>{item.type}</Eyebrow><h2>{item.name}</h2><p>{item.text}</p><Button to={planLink('experience', item.name)}>Request this experience</Button></div></article>)}</section><div className="wrap fleet" data-reveal><img src={media('airport.webp')} alt="Prestige shuttle at a covered entrance" loading="lazy"/><img src={media('hotel.webp')} alt="Prestige shuttle outside a hotel" loading="lazy"/></div><Callout/></>
+  return <><Hero image="experiences-hero.webp" label="Tailored to you" title="On land." accent="On the water." text="Choose how to spend your time, from a private game drive to a cruise or a comfortable airport transfer."/><section className="wrap section experience-list">{experiences.map(item => <article className="feature" data-reveal key={item.name}><img src={media(item.image)} alt="" loading="lazy"/><div><Eyebrow>{item.type}</Eyebrow><h2>{item.name}</h2><p>{item.text}</p><Button to={planLink('experience', item.name)}>Request this experience</Button></div></article>)}</section><div className="wrap fleet" data-reveal><div><Eyebrow>Travel between destinations</Eyebrow><h2>From arrival <em>to onward travel.</em></h2><p>Ask about airport pickups, hotel drop-offs and cross-border routes.</p><Button to={planLink('experience', 'Shuttles and transfers')}>Arrange a transfer</Button></div><img src={media('hotel.webp')} alt="Prestige shuttle outside a hotel" loading="lazy"/></div><Callout image="experience-dusk.webp"/></>
 }
 
+const branches = [
+  { title: 'Personalised service', image: 'wilderness-guide.webp', alt: 'A guide points out wildlife across the wetlands', text: 'Tell us your interests, pace and travel dates. We’ll help shape your itinerary around them.' },
+  { title: 'Local discovery', image: 'dusk.webp', alt: 'An open safari vehicle beside a river at sunset', text: 'Get to know the wildlife, waterways and landscapes that make Botswana and the region distinctive.' },
+  { title: 'Care along the way', image: 'airport.webp', alt: 'The Prestige shuttle waiting outside a covered hotel entrance', text: 'We’ll help with the practical details, from airport pickups to onward transfers and timing.' },
+]
+
 function About() {
-  return <><Hero image="about.webp" label="About Prestige" title="A more personal" accent="way to explore." text="We plan guided safaris, river cruises and wilderness adventures around the places you want to see."/><section className="wrap section story"><div data-reveal><Eyebrow>Our approach</Eyebrow><h2>Travel shaped <em>around you.</em></h2></div><div data-reveal><p>Prestige Destination Tours brings together guided experiences across Botswana and the region, from the riverfront at Chobe to the waterways of the Okavango and the mist of Victoria Falls.</p><p>Our aim is to connect you with the places and wildlife that make this region distinctive, with attentive service from the first conversation through your trip.</p></div></section><div className="wrap values">{[['Personalised service','Tell us your interests, pace and travel dates so we can help shape your itinerary.'],['Local discovery','Get to know the wildlife, waterways and landscapes of Botswana and the surrounding region.'],['Care along the way','Speak with our team about transfers, schedules and the practical details of your trip.']].map(([name,text]) => <article data-reveal key={name}><h3>{name}</h3><p>{text}</p></article>)}</div><Callout/></>
+  return <>
+    <Hero image="about-hero.webp" label="About Prestige" title="A more personal" accent="way to explore." text="We plan guided safaris, river cruises and wilderness adventures around the places you want to see."/>
+    <section className="wrap section about-tree" aria-labelledby="tree-title">
+      <div className="tree-root" data-reveal>
+        <img src={media('about.webp')} alt="A safari guide showing travellers the floodplain" loading="lazy"/>
+        <div><Eyebrow>Our approach</Eyebrow><h2 id="tree-title">Rooted in <em>Botswana.</em></h2><p>From Chobe’s riverbanks to the Okavango waterways and the mist of Victoria Falls, we bring together guided experiences that connect you with the region.</p></div>
+      </div>
+      <div className="tree-branches">
+        {branches.map(({title,image,alt,text}) => <article className="tree-branch" key={title} data-reveal>
+          <img src={media(image)} alt={alt} loading="lazy"/><div><h3>{title}</h3><p>{text}</p></div>
+        </article>)}
+      </div>
+    </section>
+    <Callout/>
+  </>
 }
 
 function Layout() {
@@ -83,13 +103,24 @@ function Layout() {
       const starts = {'/': {y: 32}, '/destinations': {x: -30}, '/experiences': {y: 24, scale: .97}, '/about': {y: 28, clipPath:'inset(0 0 100% 0)'}, '/plan': {x: 20}, '/admin': {y: 12}}
       if (intro.length) gsap.from(intro, { ...starts[pathname], opacity: 0, duration:.85, stagger:.11, ease:'power3.out' })
       if (pathname === '/') gsap.from('.hero-image', {scale:1.08, duration:1.8, ease:'power2.out'})
-      main.current.querySelectorAll('[data-reveal]').forEach(el => gsap.from(el, {y: 22, opacity:0, duration:.72, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 95%',once:true}}))
+      const slide = window.matchMedia('(min-width: 681px)').matches
+      const sections = main.current.querySelectorAll('[data-reveal]')
+      sections.forEach((el, index) => {
+        let start = {y: 24}
+        if (pathname === '/destinations' && el.classList.contains('card')) start = {y: 38, scale: .96}
+        if (pathname === '/experiences' && el.classList.contains('feature')) start = slide ? {x: index % 2 ? 46 : -46} : {y: 24}
+        if (pathname === '/about' && el.classList.contains('tree-branch')) start = {y: 30, scale: .97}
+        gsap.from(el, {...start, opacity:0, duration:.8, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 94%',once:true}})
+      })
+      const branches = main.current.querySelector('.tree-branches')
+      if (branches) gsap.from(branches, {'--branch-progress':0,duration:1.15,ease:'power2.out',scrollTrigger:{trigger:branches,start:'top 88%',once:true}})
+      if (pathname === '/plan') gsap.from('.planning aside img', {clipPath:'inset(0 100% 0 0)', duration:1.1,ease:'power3.out',delay:.16})
     }, main)
     return () => motion.revert()
   }, [pathname])
 
   return <><header className={'header ' + (pathname === '/plan' || pathname === '/admin' ? 'solid' : '')}><div className="wrap header-inner"><Link to="/" aria-label="Prestige Destination Tours home"><img src={media('logo.png')} alt="Prestige Destination Tours" className="logo"/></Link><button className="menu-toggle" onClick={() => setMenu(!menu)} aria-expanded={menu} aria-controls="site-nav" aria-label={menu ? 'Close menu' : 'Open menu'}>{menu ? <X/> : <Menu/>}</button><nav id="site-nav" className={menu ? 'open' : ''} aria-label="Main navigation">{links.map(([to,label]) => <NavLink key={to} end to={to} onClick={() => setMenu(false)}>{label}</NavLink>)}</nav><Link className="nav-cta" to="/plan?mode=booking" onClick={() => setMenu(false)}>Plan your trip <ArrowUpRight size={16}/></Link></div></header>
-  <main ref={main} id="main"><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Plan/>}/><Route path="/admin" element={<Admin/>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
-  <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a><Link to="/admin">Staff sign-in</Link><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours</div></footer>{pathname !== '/admin' && <WhatsAppButton/>}</>
+  <main ref={main} id="main" className={'route-' + (pathname.slice(1) || 'home')}><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Plan/>}/><Route path="/admin" element={<Admin/>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
+  <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a><Link to="/admin">Staff sign-in</Link><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours <a href="https://futurifydesigns.com">Built by Futurify Designs <ArrowUpRight size={13}/></a></div></footer>{pathname !== '/admin' && <WhatsAppButton/>}</>
 }
 createRoot(document.getElementById('root')).render(<HashRouter><Layout/></HashRouter>)
