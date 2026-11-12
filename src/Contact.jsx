@@ -1,13 +1,17 @@
 import { Facebook } from 'lucide-react'
-import { email, peterEmail, facebook, tiktok, whatsapp } from './data'
+import { email, peterEmail, facebook, tiktok, whatsapp, phone, telephone } from './data'
 
 export function EmailLinks() {
   return [email, peterEmail].map(address => <a key={address} href={'mailto:' + address}>{address}</a>)
 }
 
+export function TelephoneLink() {
+  return <a href={telephone}><strong>Telephone</strong> {phone}</a>
+}
+
 export function SocialLinks() {
   return <div className="social-links" aria-label="Social media">
-    <a href={facebook} aria-label="Find Prestige Destinations Tours on Facebook"><Facebook aria-hidden="true" size={19}/></a>
+    <a href={facebook} aria-label="Prestige Destinations Tours on Facebook"><Facebook aria-hidden="true" size={19}/></a>
     <a href={tiktok} aria-label="Prestige Destination Tours on TikTok"><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M14 2h3.2a5.1 5.1 0 0 0 4.3 4.4v3.2A8 8 0 0 1 17.2 8v8.1a6 6 0 1 1-6-6c.4 0 .7 0 1 .1v3.3a2.8 2.8 0 1 0 1.8 2.6V2Z"/></svg></a>
   </div>
 }

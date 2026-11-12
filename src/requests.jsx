@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
-import { ArrowRight, Check, Mail, ShieldCheck } from 'lucide-react'
-import { destinations, experiences, transferRoutes, media, phone, whatsapp } from './data'
-import { EmailLinks } from './Contact'
+import { ArrowRight, CalendarDays, Check, Mail, ShieldCheck } from 'lucide-react'
+import { destinations, experiences, transferRoutes, media } from './data'
+import { EmailLinks, TelephoneLink } from './Contact'
 
+const recoveryHash = new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery'
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 const db = url && key ? createClient(url, key) : null
@@ -21,6 +22,7 @@ function PlanForm({ params, booking }) {
   const [result, setResult] = useState('')
   const [busy, setBusy] = useState(false)
   const [received, setReceived] = useState(false)
+  const [errors, setErrors] = useState({})
   const today = new Intl.DateTimeFormat('en-CA', {timeZone:'Africa/Gaborone',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
   async function submit(event) {
     event.preventDefault()
@@ -38,13 +40,25 @@ function PlanForm({ params, booking }) {
     for (const field of ['name', 'email', 'phone', 'message']) data[field] = data[field].trim()
     const transfer = data.transfer
     delete data.transfer
-    if (!data.name || !data.message) {
-      setResult('Please enter your name and some details about your trip.')
-      return
+    const validation = {}
+    if (!data.name || data.name.length > 120) validation.name = 'Enter your full name, up to 120 characters.'
+    if (!/^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z0-9-]+$/i.test(data.email) || data.email.length > 254) {
+      validation.email = 'Enter a valid email address so we can reply.'
     }
+    if (data.phone && (!/^\+?[0-9().\s-]+$/.test(data.phone) || data.phone.replace(/\D/g, '').length < 7 || data.phone.replace(/\D/g, '').length > 15)) {
+      validation.phone = 'Enter a valid phone number, including the country code if needed.'
+    }
+    if ((booking && !data.travel_date) || (data.travel_date && data.travel_date < today)) validation.travel_date = 'Choose today or a future travel date.'
+    if ((booking && data.guests === null) || (data.guests !== null && (!Number.isInteger(data.guests) || data.guests < 1 || data.guests > 999))) {
+      validation.guests = 'Enter a whole number between 1 and 999.'
+    }
+    if (!data.message) validation.message = 'Tell us a little about your trip.'
     if (transfer) data.message = 'Transfer route: ' + transfer + '\n\n' + data.message
-    if (data.message.length > 4000) {
-      setResult('Please shorten your trip details before sending.')
+    if (data.message.length > 4000) validation.message = 'Shorten your trip details before sending.'
+    setErrors(validation)
+    if (Object.keys(validation).length) {
+      setResult('Please check the highlighted fields.')
+      event.currentTarget.elements.namedItem(Object.keys(validation)[0])?.focus()
       return
     }
     setBusy(true)
@@ -53,28 +67,38 @@ function PlanForm({ params, booking }) {
       const { error } = await db.from('travel_requests').insert(data)
       if (error) throw error
       setReceived(true)
-    } catch {
-      setResult('We couldn’t save your request. Please try again or contact us directly.')
+    } catch (error) {
+      setResult(error?.code === 'PT429' ? 'Too many requests were sent for this email. Wait a few minutes or contact us directly.' : 'We couldn’t save your request. Please try again or contact us directly.')
     } finally {
       setBusy(false)
     }
   }
+  function fieldProps(name) {
+    return {
+      'aria-invalid': errors[name] ? true : undefined,
+      'aria-describedby': errors[name] ? name + '-error' : undefined,
+      onChange: () => setErrors(current => ({...current, [name]:undefined})),
+    }
+  }
+  function fieldError(name) {
+    return errors[name] && <span className="field-error" id={name + '-error'}>{errors[name]}</span>
+  }
   return <div className="wrap section planning">
-    <aside data-intro><div className="eyebrow"><span>✦</span> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img src={media('plan-hero.webp')} alt="Binoculars and a map on a table overlooking Botswana wetlands"/><div className="direct"><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a></div></aside>
+    <aside data-intro><div className="eyebrow"><CalendarDays size={16} aria-hidden="true"/> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img src={media('plan-hero.webp')} alt="Binoculars and a map on a table overlooking Botswana wetlands"/><div className="direct"><EmailLinks/><TelephoneLink/></div></aside>
     <section className="form-panel" data-intro>
       <div className="tabs" aria-label="Request type"><Link aria-current={booking ? undefined : 'page'} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'enquiry'})}>Enquiry</Link><Link aria-current={booking ? 'page' : undefined} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'booking'})}>Booking request</Link></div>
-      {received ? <div className="confirmation" role="status"><Check/><h2>Request received</h2><p>Our team will follow up at the email address you provided.</p><button className="button" onClick={() => setReceived(false)}>Send another request</button></div> : <form onSubmit={submit} key={params.toString()}>
+      {received ? <div className="confirmation" role="status"><Check/><h2>Request received</h2><p>Our team will follow up at the email address you provided.</p><button className="button" onClick={() => setReceived(false)}>Send another request</button></div> : <form onSubmit={submit} noValidate>
       <h2>{booking ? 'Request a booking' : 'Send an enquiry'}</h2>
       <div className="form-grid">
-      <label>Full name<input name="name" autoComplete="name" maxLength="120" required/></label>
-      <label>Email address<input name="email" type="email" autoComplete="email" maxLength="254" required/></label>
-      <label>Phone / WhatsApp (optional)<input name="phone" type="tel" autoComplete="tel" maxLength="40"/></label>
+      <label>Full name<input name="name" autoComplete="name" maxLength="120" required {...fieldProps('name')}/>{fieldError('name')}</label>
+      <label>Email address<input name="email" type="email" autoComplete="email" maxLength="254" required {...fieldProps('email')}/>{fieldError('email')}</label>
+      <label>Phone / WhatsApp (optional)<input name="phone" type="tel" autoComplete="tel" maxLength="40" {...fieldProps('phone')}/>{fieldError('phone')}</label>
       <label>Destination<select name="destination" defaultValue={params.get('destination') || ''}><option value="">Help me choose</option>{destinations.map(({name}) => <option key={name}>{name}</option>)}</select></label>
       <label className="wide">Experience<select name="experience" value={experience} onChange={event => setExperience(event.target.value)}><option value="">Help me choose</option>{experiences.map(({name}) => <option key={name}>{name}</option>)}</select></label>
       {experience === 'Shuttles and transfers' && <label className="wide">Transfer route<select name="transfer" defaultValue={params.get('transfer') || ''}><option value="">Other or undecided</option>{transferRoutes.map(({name}) => <option key={name}>{name}</option>)}</select></label>}
-      <label>Preferred date{!booking && ' (optional)'}<input name="travel_date" type="date" min={today} required={booking}/></label>
-      <label>Travellers{!booking && ' (optional)'}<input name="guests" type="number" min="1" max="999" required={booking}/></label>
-      <label className="wide">Trip details<textarea name="message" required rows="4" maxLength={experience === 'Shuttles and transfers' ? 3900 : 4000} placeholder={booking ? 'Tell us about your itinerary, pickup point or preferred timing.' : 'What would you like to know?'}/></label>
+      <label>Preferred date{!booking && ' (optional)'}<input name="travel_date" type="date" min={today} required={booking} {...fieldProps('travel_date')}/>{fieldError('travel_date')}</label>
+      <label>Travellers{!booking && ' (optional)'}<input name="guests" type="number" min="1" max="999" required={booking} {...fieldProps('guests')}/>{fieldError('guests')}</label>
+      <label className="wide">Trip details<textarea name="message" {...fieldProps('message')} required rows="4" maxLength={experience === 'Shuttles and transfers' ? 3900 : 4000} placeholder={booking ? 'Tell us about your itinerary, pickup point or preferred timing.' : 'What would you like to know?'}/>{fieldError('message')}</label>
       </div><div className="trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off"/></label></div>
       <p className="caption">We’ll use these details to respond to your request.</p>
       {result && <p role="alert" className="error">{result}</p>}
@@ -84,7 +108,11 @@ function PlanForm({ params, booking }) {
   </div>
 }
 
-export function Admin() {
+export function Admin({ recoveryUrl = new URL('admin/', window.location.href).href }) {
+  const [recovering, setRecovering] = useState(recoveryHash)
+  const [resetRequested, setResetRequested] = useState(false)
+  const [setupCode, setSetupCode] = useState(false)
+  const [notice, setNotice] = useState('')
   const [session, setSession] = useState(null)
   const [filter, setFilter] = useState('all')
   const [requests, setRequests] = useState([])
@@ -95,10 +123,11 @@ export function Admin() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(Boolean(db))
   const [saving, setSaving] = useState(false)
-  const isStaff = session?.user.app_metadata.prestige_staff === true
+  const isStaff = !recovering && session?.user.app_metadata.prestige_staff === true
   useEffect(() => {
     if (!db) return
-    const { data } = db.auth.onAuthStateChange((_event, value) => {
+    const { data } = db.auth.onAuthStateChange((event, value) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
       setSession(value)
       setLoading(false)
       if (!value) {
@@ -135,6 +164,52 @@ export function Admin() {
     if (error) setError('Sign-in failed. Check your email and password.')
     setSaving(false)
   }
+  async function requestReset(event) {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    setSaving(true)
+    const address = new FormData(event.currentTarget).get('email')
+    const { error } = await db.auth.resetPasswordForEmail(address, {redirectTo: recoveryUrl})
+    if (error) setError('The reset request could not be completed. Try again in a few minutes.')
+    else setNotice('If the address has an account, check its inbox for the password setup link.')
+    setSaving(false)
+  }
+  async function verifySetupCode(event) {
+    event.preventDefault()
+    setError('')
+    setSaving(true)
+    const form = new FormData(event.currentTarget)
+    const { error } = await db.auth.verifyOtp({
+      email:form.get('email'),
+      token:form.get('code').trim(),
+      type:'recovery',
+    })
+    if (error) setError('This setup code is invalid or has expired.')
+    else {
+      setRecovering(true)
+      setSetupCode(false)
+    }
+    setSaving(false)
+  }
+  async function changePassword(event) {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    if (form.get('password') !== form.get('confirmation')) {
+      setError('Enter the same password in both fields.')
+      return
+    }
+    setError('')
+    setSaving(true)
+    const { error } = await db.auth.updateUser({password:form.get('password')})
+    if (error) setError('The password could not be updated. Request a fresh reset link and try again.')
+    else {
+      setRecovering(false)
+      setResetRequested(false)
+      setNotice('Password updated.')
+    }
+    setSaving(false)
+  }
   async function update(status) {
     setSaving(true)
     setError('')
@@ -147,11 +222,22 @@ export function Admin() {
   const label = kind => kind === 'booking' ? 'Booking request' : 'Enquiry'
   const date = value => new Intl.DateTimeFormat('en-BW',{dateStyle:'medium',timeZone:'Africa/Gaborone'}).format(new Date(value))
   return <section className={'wrap section staff' + (!isStaff ? ' sign-in' : '')}>
-    <div className="staff-heading" data-intro><div><div className="eyebrow"><ShieldCheck size={16}/> PRESTIGE STAFF</div><h1>{isStaff ? 'Request inbox' : 'Staff sign-in'}</h1></div>{session && <button className="plain" onClick={() => {setError('');setPage(0);setFilter('all');db.auth.signOut()}}>Sign out</button>}</div>
+    <div className="staff-heading" data-intro><div><div className="eyebrow"><ShieldCheck size={16}/> PRESTIGE STAFF</div><h1>{isStaff ? 'Request inbox' : 'Staff sign-in'}</h1></div>{session && <button className="plain" onClick={() => {setError('');setNotice('');setRecovering(false);setPage(0);setFilter('all');db.auth.signOut()}}>Sign out</button>}</div>
     {error && <p role="alert" className="error">{error}</p>}
+    {notice && <p role="status">{notice}</p>}
     {!db && <p>The staff inbox is awaiting its database connection.</p>}
-    {db && !session && (loading ? <p role="status">Checking session…</p> : <form className="form-panel" onSubmit={login}><label>Staff email<input name="email" type="email" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button className="button" disabled={saving}>{saving ? 'Signing in…' : 'Sign in'}</button></form>)}
-    {session && !isStaff && <p>This account doesn’t have access to the Prestige staff inbox.</p>}
+    {db && recovering && session && <form className="form-panel" onSubmit={changePassword}>
+      <h2>Set your password</h2>
+      <label>New password<input name="password" type="password" autoComplete="new-password" minLength="14" maxLength="72" required/></label>
+      <label>Confirm password<input name="confirmation" type="password" autoComplete="new-password" minLength="14" maxLength="72" required/></label>
+      <button className="button" disabled={saving}>{saving ? 'Saving…' : 'Set password'}</button>
+    </form>}
+    {db && !session && (loading ? <p role="status">Checking session…</p> : setupCode ? <form className="form-panel" onSubmit={verifySetupCode}><label>Staff email<input name="email" type="email" autoComplete="username" required/></label><label>Setup code<input name="code" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" required/></label><button className="button" disabled={saving}>{saving ? 'Verifying…' : 'Verify setup code'}</button><button className="text-link" type="button" onClick={() => {setSetupCode(false);setError('')}}>Back to sign-in</button></form> : resetRequested ? <form className="form-panel" onSubmit={requestReset}>
+      <label>Staff email<input name="email" type="email" autoComplete="username" required/></label>
+      <button className="button" disabled={saving}>{saving ? 'Sending…' : 'Send password setup link'}</button>
+      <button className="text-link" type="button" onClick={() => {setResetRequested(false);setError('');setNotice('')}}>Back to sign-in</button>
+    </form> : <form className="form-panel" onSubmit={login}><label>Staff email<input name="email" type="email" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button className="button" disabled={saving}>{saving ? 'Signing in…' : 'Sign in'}</button><button className="text-link" type="button" onClick={() => {setResetRequested(true);setError('');setNotice('')}}>Set or reset password</button><button className="text-link" type="button" onClick={() => {setSetupCode(true);setError('');setNotice('')}}>Use a setup code</button></form>)}
+    {session && !isStaff && !recovering && <p>This account doesn’t have access to the Prestige staff inbox.</p>}
     {isStaff && <>
       <div className="inbox-controls"><div className="tabs">{[['all','All requests'],['enquiry','Enquiries'],['booking','Bookings']].map(([id,name]) => <button key={id} aria-pressed={filter === id} onClick={() => {setFilter(id);setPage(0);setActive(null)}}>{name}</button>)}</div><button className="plain" onClick={() => setVersion(v => v+1)}>Refresh</button></div>
       <div className="inbox">
