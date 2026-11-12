@@ -18,3 +18,10 @@ export const experiences = [
   { name: 'Wilderness adventures', type: 'Tailored itineraries', image: 'wilderness.webp', text: 'Build time in Botswana’s wild places around the landscapes and experiences you most want to explore.' },
   { name: 'Shuttles and transfers', type: 'Airport & cross-border', image: 'transfer.webp', text: 'Arrange airport pick-ups and drop-offs or ask about cross-border transfers to the Caprivi Strip, Victoria Falls and Katima Mulilo.' },
 ]
+
+export const transferRoutes = [
+  { name: 'Airport pickup or drop-off', area: 'Airport shuttle', text: 'Request a ride between the airport and your hotel, lodge, or meeting point. Include your flight number and pickup time if you have them.' },
+  { name: 'Caprivi Strip', area: 'Namibia', text: 'Plan onward travel into Namibia’s Caprivi Strip. Tell us your pickup point and your final stop.' },
+  { name: 'Victoria Falls', area: 'Zimbabwe', text: 'Arrange a cross-border transfer to or from Victoria Falls and share your preferred pickup and drop-off points.' },
+  { name: 'Katima Mulilo', area: 'Namibia', text: 'Request a transfer to or from Katima Mulilo in Namibia’s Zambezi Region.' },
+]

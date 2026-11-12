@@ -1,17 +1,17 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { ArrowDown, ArrowRight, ArrowUpRight, Binoculars, Compass, MapPin, Menu, Waves, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Binoculars, Compass, MapPin, Menu, Plane, Waves, X } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { destinations, experiences, media, phone, whatsapp } from './data'
+import { destinations, experiences, transferRoutes, media, phone, whatsapp } from './data'
 import { Plan, Admin } from './requests'
 import { EmailLinks, SocialLinks, WhatsAppButton } from './Contact'
 import './style.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const links = [['/', 'Home'], ['/destinations', 'Destinations'], ['/experiences', 'Experiences'], ['/about', 'About']]
+const links = [['/', 'Home'], ['/destinations', 'Destinations'], ['/experiences', 'Experiences'], ['/shuttles', 'Shuttles'], ['/about', 'About']]
 export const planLink = (key, value, mode = 'booking') => '/plan?' + new URLSearchParams({ mode, [key]: value })
 
 export function Eyebrow({ children }) {
@@ -50,7 +50,7 @@ function Callout({ image }) {
 function Home() {
   return <>
     <Hero home image="home-hero.webp" label="Private safaris & tailored journeys" title="Botswana, at" accent="your own pace." text="Private guided safaris, river cruises and wilderness journeys shaped around the way you want to travel."/>
-    <div className="ribbon"><div className="wrap">{[[Binoculars, 'Private guided safaris'], [Waves, 'River cruises'], [Compass, 'Tailored adventures']].map(([Icon, name]) => <Link key={name} to="/experiences"><Icon size={22} strokeWidth={1.4}/>{name}</Link>)}</div></div>
+    <div className="ribbon"><div className="wrap">{[[Binoculars, 'Private guided safaris', '/experiences'], [Waves, 'River cruises', '/experiences'], [Compass, 'Tailored adventures', '/experiences'], [Plane, 'Shuttles & transfers', '/shuttles']].map(([Icon, name, to]) => <Link key={name} to={to}><Icon size={22} strokeWidth={1.4}/>{name}</Link>)}</div></div>
     <section className="wrap section" id="discover"><div className="section-head" data-reveal><div><Eyebrow>Explore the region</Eyebrow><h2>Places worth <em>slowing down for.</em></h2></div><Link className="text-link" to="/destinations">All destinations <ArrowRight size={17}/></Link></div><Cards items={destinations.slice(0,3).map((item,index) => ({...item,image:['home-chobe.webp','plan.webp','home-falls.webp'][index]}))} kind="destination"/></section>
     <section className="feature wrap section" data-reveal><img src={media('lodge.webp')} alt="A lantern-lit safari lodge overlooking wetlands at sunset" loading="lazy"/><div><Eyebrow>Travel with Prestige</Eyebrow><h2>Make the journey <em>your own.</em></h2><p>Start with a place you’ve always wanted to see, an experience you’re curious about, or the dates you have in mind. We’ll help shape the details around you.</p><Link className="text-link" to="/about">Meet Prestige <ArrowRight size={17}/></Link></div></section>
     <Callout image="hero.webp"/>
@@ -62,7 +62,26 @@ function Destinations() {
 }
 
 function Experiences() {
-  return <><Hero image="experiences-hero.webp" label="Tailored to you" title="On land." accent="On the water." text="Choose how to spend your time, from a private game drive to a cruise or a comfortable airport transfer."/><section className="wrap section experience-list">{experiences.map(item => <article className="feature" data-reveal key={item.name}><img src={media(item.image)} alt="" loading="lazy"/><div><Eyebrow>{item.type}</Eyebrow><h2>{item.name}</h2><p>{item.text}</p><Button to={planLink('experience', item.name)}>Request this experience</Button></div></article>)}</section><div className="wrap fleet" data-reveal><div><Eyebrow>Travel between destinations</Eyebrow><h2>From arrival <em>to onward travel.</em></h2><p>Ask about airport pickups, hotel drop-offs and cross-border routes.</p><Button to={planLink('experience', 'Shuttles and transfers')}>Arrange a transfer</Button></div><img src={media('hotel.webp')} alt="Prestige shuttle outside a hotel" loading="lazy"/></div><Callout image="experience-dusk.webp"/></>
+  return <><Hero image="experiences-hero.webp" label="Tailored to you" title="On land." accent="On the water." text="Choose how to spend your time, from a private game drive to a cruise or a comfortable airport transfer."/><section className="wrap section experience-list">{experiences.filter(item => item.name !== 'Shuttles and transfers').map(item => <article className="feature" data-reveal key={item.name}><img src={media(item.image)} alt="" loading="lazy"/><div><Eyebrow>{item.type}</Eyebrow><h2>{item.name}</h2><p>{item.text}</p><Button to={planLink('experience', item.name)}>Request this experience</Button></div></article>)}</section><div className="wrap fleet shuttle-teaser" data-reveal><div><Eyebrow>Travel between destinations</Eyebrow><h2>From arrival <em>to onward travel.</em></h2><p>Ask about airport pickups, hotel drop-offs and cross-border routes.</p></div><Button to="/shuttles">Explore shuttle services</Button></div><Callout image="experience-dusk.webp"/></>
+}
+
+function Shuttles() {
+  return <>
+    <Hero image="transfer.webp" label="Shuttle services" title="Airport pickups." accent="Cross-border transfers." text="Arrange an airport pickup or drop-off, or plan a transfer to the Caprivi Strip, Victoria Falls or Katima Mulilo."/>
+    <section className="wrap section shuttle-routes" aria-labelledby="shuttle-routes-title">
+      <div data-reveal><Eyebrow>Airport & cross-border routes</Eyebrow><h2 id="shuttle-routes-title">Where are you <em>headed?</em></h2></div>
+      <div className="shuttle-grid">
+        {transferRoutes.map(({name,area,text}) => <article className="shuttle-card" key={name} data-reveal>
+          <Eyebrow>{area}</Eyebrow><h3>{name}</h3><p>{text}</p>
+          <Link className="text-link" to={'/plan?' + new URLSearchParams({mode:'booking',experience:'Shuttles and transfers',transfer:name})}>Request a transfer <ArrowRight size={17}/></Link>
+        </article>)}
+      </div>
+    </section>
+    <section className="wrap feature shuttle-photo" data-reveal>
+      <img src={media('hotel.webp')} alt="Prestige Destination Tours shuttle outside a hotel" loading="lazy"/>
+      <div><Eyebrow>Plan your pickup</Eyebrow><h2>Tell us where <em>to meet you.</em></h2><p>Share your travel date, group size and pickup and drop-off details. Our team will email you to confirm availability and arrange the transfer.</p><Button to={planLink('experience','Shuttles and transfers','enquiry')}>Ask about transfers</Button></div>
+    </section>
+  </>
 }
 
 const branches = [
@@ -100,7 +119,7 @@ function Layout() {
     const motion = gsap.matchMedia()
     motion.add('(prefers-reduced-motion: no-preference)', () => {
       const intro = main.current.querySelectorAll('[data-intro]')
-      const starts = {'/': {y: 32}, '/destinations': {x: -30}, '/experiences': {y: 24, scale: .97}, '/about': {y: 28, clipPath:'inset(0 0 100% 0)'}, '/plan': {x: 20}, '/admin': {y: 12}}
+      const starts = {'/': {y: 32}, '/destinations': {x: -30}, '/experiences': {y: 24, scale: .97}, '/shuttles': {x: 26}, '/about': {y: 28, clipPath:'inset(0 0 100% 0)'}, '/plan': {x: 20}, '/admin': {y: 12}}
       if (intro.length) gsap.from(intro, { ...starts[pathname], opacity: 0, duration:.85, stagger:.11, ease:'power3.out' })
       if (pathname === '/') gsap.from('.hero-image', {scale:1.08, duration:1.8, ease:'power2.out'})
       const slide = window.matchMedia('(min-width: 681px)').matches
@@ -109,6 +128,7 @@ function Layout() {
         let start = {y: 24}
         if (pathname === '/destinations' && el.classList.contains('card')) start = {y: 38, scale: .96}
         if (pathname === '/experiences' && el.classList.contains('feature')) start = slide ? {x: index % 2 ? 46 : -46} : {y: 24}
+        if (pathname === '/shuttles' && el.classList.contains('shuttle-card')) start = slide ? {x: index % 2 ? -32 : 32, y: 12} : {y: 22}
         if (pathname === '/about' && el.classList.contains('tree-branch')) start = {y: 30, scale: .97}
         gsap.from(el, {...start, opacity:0, duration:.8, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 94%',once:true}})
       })
@@ -120,7 +140,7 @@ function Layout() {
   }, [pathname])
 
   return <><header className={'header ' + (pathname === '/plan' || pathname === '/admin' ? 'solid' : '')}><div className="wrap header-inner"><Link to="/" aria-label="Prestige Destination Tours home"><img src={media('logo.png')} alt="Prestige Destination Tours" className="logo"/></Link><button className="menu-toggle" onClick={() => setMenu(!menu)} aria-expanded={menu} aria-controls="site-nav" aria-label={menu ? 'Close menu' : 'Open menu'}>{menu ? <X/> : <Menu/>}</button><nav id="site-nav" className={menu ? 'open' : ''} aria-label="Main navigation">{links.map(([to,label]) => <NavLink key={to} end to={to} onClick={() => setMenu(false)}>{label}</NavLink>)}</nav><Link className="nav-cta" to="/plan?mode=booking" onClick={() => setMenu(false)}>Plan your trip <ArrowUpRight size={16}/></Link></div></header>
-  <main ref={main} id="main" className={'route-' + (pathname.slice(1) || 'home')}><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Plan/>}/><Route path="/admin" element={<Admin/>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
-  <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a><Link to="/admin">Staff sign-in</Link><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours <a href="https://futurifydesigns.com">Built by Futurify Designs <ArrowUpRight size={13}/></a></div></footer>{pathname !== '/admin' && <WhatsAppButton/>}</>
+  <main ref={main} id="main" className={'route-' + (pathname.slice(1) || 'home')}><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/shuttles" element={<Shuttles/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Plan/>}/><Route path="/admin" element={<Admin/>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
+  <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/shuttles">Shuttles & transfers</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a><Link to="/admin">Staff sign-in</Link><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours <a href="https://futurifydesigns.com">Built by Futurify Designs <ArrowUpRight size={13}/></a></div></footer>{pathname !== '/admin' && <WhatsAppButton/>}</>
 }
 createRoot(document.getElementById('root')).render(<HashRouter><Layout/></HashRouter>)

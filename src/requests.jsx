@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { ArrowRight, Check, Mail, ShieldCheck } from 'lucide-react'
-import { destinations, experiences, media, phone, whatsapp } from './data'
+import { destinations, experiences, transferRoutes, media, phone, whatsapp } from './data'
 import { EmailLinks } from './Contact'
 
 const url = import.meta.env.VITE_SUPABASE_URL
@@ -13,6 +13,11 @@ const statuses = ['New', 'In progress', 'Closed']
 export function Plan() {
   const [params] = useSearchParams()
   const booking = params.get('mode') === 'booking'
+  return <PlanForm key={params.toString()} params={params} booking={booking}/>
+}
+
+function PlanForm({ params, booking }) {
+  const [experience, setExperience] = useState(params.get('experience') || '')
   const [result, setResult] = useState('')
   const [busy, setBusy] = useState(false)
   const [received, setReceived] = useState(false)
@@ -31,8 +36,15 @@ export function Plan() {
     data.travel_date ||= null
     data.guests = data.guests ? Number(data.guests) : null
     for (const field of ['name', 'email', 'phone', 'message']) data[field] = data[field].trim()
+    const transfer = data.transfer
+    delete data.transfer
     if (!data.name || !data.message) {
       setResult('Please enter your name and some details about your trip.')
+      return
+    }
+    if (transfer) data.message = 'Transfer route: ' + transfer + '\n\n' + data.message
+    if (data.message.length > 4000) {
+      setResult('Please shorten your trip details before sending.')
       return
     }
     setBusy(true)
@@ -58,10 +70,11 @@ export function Plan() {
       <label>Email address<input name="email" type="email" autoComplete="email" maxLength="254" required/></label>
       <label>Phone / WhatsApp (optional)<input name="phone" type="tel" autoComplete="tel" maxLength="40"/></label>
       <label>Destination<select name="destination" defaultValue={params.get('destination') || ''}><option value="">Help me choose</option>{destinations.map(({name}) => <option key={name}>{name}</option>)}</select></label>
-      <label className="wide">Experience<select name="experience" defaultValue={params.get('experience') || ''}><option value="">Help me choose</option>{experiences.map(({name}) => <option key={name}>{name}</option>)}</select></label>
+      <label className="wide">Experience<select name="experience" value={experience} onChange={event => setExperience(event.target.value)}><option value="">Help me choose</option>{experiences.map(({name}) => <option key={name}>{name}</option>)}</select></label>
+      {experience === 'Shuttles and transfers' && <label className="wide">Transfer route<select name="transfer" defaultValue={params.get('transfer') || ''}><option value="">Other or undecided</option>{transferRoutes.map(({name}) => <option key={name}>{name}</option>)}</select></label>}
       <label>Preferred date{!booking && ' (optional)'}<input name="travel_date" type="date" min={today} required={booking}/></label>
       <label>Travellers{!booking && ' (optional)'}<input name="guests" type="number" min="1" max="999" required={booking}/></label>
-      <label className="wide">Trip details<textarea name="message" required rows="4" maxLength="4000" placeholder={booking ? 'Tell us about your itinerary, pickup point or preferred timing.' : 'What would you like to know?'}/></label>
+      <label className="wide">Trip details<textarea name="message" required rows="4" maxLength={experience === 'Shuttles and transfers' ? 3900 : 4000} placeholder={booking ? 'Tell us about your itinerary, pickup point or preferred timing.' : 'What would you like to know?'}/></label>
       </div><div className="trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off"/></label></div>
       <p className="caption">We’ll use these details to respond to your request.</p>
       {result && <p role="alert" className="error">{result}</p>}
