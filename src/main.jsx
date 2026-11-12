@@ -77,9 +77,14 @@ function Shuttles() {
     <section className="wrap section shuttle-routes" aria-labelledby="shuttle-routes-title">
       <div data-reveal><Eyebrow>Airport & cross-border routes</Eyebrow><h2 id="shuttle-routes-title">Where are you <em>headed?</em></h2></div>
       <div className="shuttle-grid">
-        {transferRoutes.map(({name,area,text}) => <article className="shuttle-card" key={name} data-reveal>
-          <Eyebrow>{area}</Eyebrow><h3>{name}</h3><p>{text}</p>
-          <Link className="text-link" to={'/plan?' + new URLSearchParams({mode:'booking',experience:'Shuttles and transfers',transfer:name})}>Request a transfer <ArrowRight size={17}/></Link>
+        {transferRoutes.map(({name,area,text,image,small,alt}) => <article className="shuttle-card" key={name} data-reveal>
+          <div className="shuttle-card-image">
+            <img src={media(image)} srcSet={small ? media(small) + ' 540w, ' + media(image) + ' 1024w' : undefined} sizes="(max-width: 680px) 90vw, (max-width: 1378px) 45vw, 612px" alt={alt} loading="lazy" decoding="async"/>
+          </div>
+          <div className="shuttle-card-body">
+            <Eyebrow>{area}</Eyebrow><h3>{name}</h3><p>{text}</p>
+            <Link className="text-link" to={'/plan?' + new URLSearchParams({mode:'booking',experience:'Shuttles and transfers',transfer:name})}>Request a transfer <ArrowRight size={17}/></Link>
+          </div>
         </article>)}
       </div>
     </section>

@@ -190,8 +190,12 @@ textarea{resize:vertical}
 .route-shuttles .hero-shade{background:linear-gradient(90deg,#12221bf2,#15291db7 49%,#17251a40),linear-gradient(180deg,#12221b6b,transparent 35%)}
 .route-shuttles .page-hero h1{font-size:clamp(2.8rem,5.9vw,6.1rem)}
 .shuttle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:27px}
-.shuttle-card{display:flex;flex-direction:column;align-items:start;padding:clamp(22px,4vw,42px);border:1px solid var(--line);background:#fffaf0;transition:border-color .25s,box-shadow .25s}
+.shuttle-card{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);background:#fffaf0;transition:border-color .25s,box-shadow .25s}
 .shuttle-card:hover,.shuttle-card:focus-within{border-color:#af854e;box-shadow:0 8px 24px #52402612}
+.shuttle-card-image{aspect-ratio:2.15;overflow:hidden;background:#e4d8c2}
+.shuttle-card-image img{height:100%;object-position:center 49%;transition:transform .45s ease}
+.shuttle-card-body{display:flex;flex:1;flex-direction:column;align-items:start;padding:clamp(22px,4vw,42px)}
+@media(prefers-reduced-motion:no-preference){.shuttle-card:hover img,.shuttle-card:focus-within img{transform:scale(1.035)}}
 .shuttle-card h3{margin-top:.45em;font-size:clamp(1.65rem,2.7vw,2.55rem)}
 .shuttle-card p{margin:0 0 18px;color:#4e584b}
 .shuttle-card .text-link{margin-top:auto}
