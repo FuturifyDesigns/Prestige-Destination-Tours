@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { ArrowRight, Check, Mail, ShieldCheck } from 'lucide-react'
-import { destinations, experiences, email, media, phone, whatsapp } from './data'
+import { destinations, experiences, media, phone, whatsapp } from './data'
+import { EmailLinks } from './Contact'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -47,7 +48,7 @@ export function Plan() {
     }
   }
   return <div className="wrap section planning">
-    <aside data-intro><div className="eyebrow"><span>✦</span> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img src={media('plan.webp')} alt="Safari tent overlooking a river at sunset"/><div className="direct"><a href={'mailto:' + email}>{email}</a><a href={whatsapp}>{phone} · WhatsApp</a></div></aside>
+    <aside data-intro><div className="eyebrow"><span>✦</span> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img src={media('plan.webp')} alt="Safari tent overlooking a river at sunset"/><div className="direct"><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a></div></aside>
     <section className="form-panel" data-intro>
       <div className="tabs" aria-label="Request type"><Link aria-current={booking ? undefined : 'page'} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'enquiry'})}>Enquiry</Link><Link aria-current={booking ? 'page' : undefined} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'booking'})}>Booking request</Link></div>
       {received ? <div className="confirmation" role="status"><Check/><h2>Request received</h2><p>Our team will follow up at the email address you provided.</p><button className="button" onClick={() => setReceived(false)}>Send another request</button></div> : <form onSubmit={submit} key={params.toString()}>

@@ -4,8 +4,9 @@ import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-rou
 import { ArrowDown, ArrowRight, ArrowUpRight, Binoculars, Compass, MapPin, Menu, Waves, X } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { destinations, experiences, email, media, phone, whatsapp } from './data'
+import { destinations, experiences, media, phone, whatsapp } from './data'
 import { Plan, Admin } from './requests'
+import { EmailLinks, SocialLinks, WhatsAppButton } from './Contact'
 import './style.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -89,6 +90,6 @@ function Layout() {
 
   return <><header className={'header ' + (pathname === '/plan' || pathname === '/admin' ? 'solid' : '')}><div className="wrap header-inner"><Link to="/" aria-label="Prestige Destination Tours home"><img src={media('logo.png')} alt="Prestige Destination Tours" className="logo"/></Link><button className="menu-toggle" onClick={() => setMenu(!menu)} aria-expanded={menu} aria-controls="site-nav" aria-label={menu ? 'Close menu' : 'Open menu'}>{menu ? <X/> : <Menu/>}</button><nav id="site-nav" className={menu ? 'open' : ''} aria-label="Main navigation">{links.map(([to,label]) => <NavLink key={to} end to={to} onClick={() => setMenu(false)}>{label}</NavLink>)}</nav><Link className="nav-cta" to="/plan?mode=booking" onClick={() => setMenu(false)}>Plan your trip <ArrowUpRight size={16}/></Link></div></header>
   <main ref={main} id="main"><Routes><Route path="/" element={<Home/>}/><Route path="/destinations" element={<Destinations/>}/><Route path="/experiences" element={<Experiences/>}/><Route path="/about" element={<About/>}/><Route path="/plan" element={<Plan/>}/><Route path="/admin" element={<Admin/>}/><Route path="*" element={<section className="wrap section"><h1>Page unavailable</h1><Button to="/">Back to home</Button></section>}/></Routes></main>
-  <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><a href={'mailto:' + email}>{email}</a><a href={whatsapp}>{phone} · WhatsApp</a><Link to="/admin">Staff sign-in</Link></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours</div></footer></>
+  <footer><div className="wrap footer-grid"><Link to="/"><img src={media('logo-with-tagline.png')} alt="Prestige Destination Tours. Open chapter, write your memory."/></Link><div><strong>Explore</strong><Link to="/destinations">Destinations</Link><Link to="/experiences">Experiences</Link><Link to="/plan?mode=enquiry">Make an enquiry</Link></div><div><strong>Get in touch</strong><EmailLinks/><a href={whatsapp}>{phone} · WhatsApp</a><Link to="/admin">Staff sign-in</Link><SocialLinks/></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Prestige Destination Tours</div></footer>{pathname !== '/admin' && <WhatsAppButton/>}</>
 }
 createRoot(document.getElementById('root')).render(<HashRouter><Layout/></HashRouter>)

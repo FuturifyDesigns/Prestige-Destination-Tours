@@ -130,3 +130,9 @@ textarea{resize:vertical}
 .section-head{display:block}.cards{grid-template-columns:1fr}.card{min-height:345px}.feature,.story,.values,.planning,.inbox{grid-template-columns:1fr;gap:21px}.experience-list article:nth-child(even) img{order:0}.values{margin-bottom:55px}.fleet{gap:8px;margin-bottom:55px}.footer-grid{grid-template-columns:1fr 1fr;gap:22px}.footer-grid>a{grid-column:1/-1}.footer-grid a{overflow-wrap:anywhere}.form-grid{grid-template-columns:1fr}.inbox-controls{align-items:start}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+
+.footer-grid .social-links{display:flex;gap:8px;margin-top:5px}
+.social-links a{display:grid;place-items:center;width:36px;height:36px;border:1px solid #e9dbc270;border-radius:50%;color:#f3cd94;transition:background .2s,color .2s}
+.social-links a:hover{background:#f3cd94;color:var(--deep)}
+.whatsapp-float{position:fixed;z-index:4;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#176044;color:#fff;box-shadow:0 4px 18px #1020174d;transition:background .2s,transform .2s}
+.whatsapp-float:hover{background:#0e4931;transform:translateY(-2px)}

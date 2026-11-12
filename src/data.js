@@ -1,4 +1,7 @@
 export const email = 'info@prestigetours.co.bw'
+export const peterEmail = 'peter@prestigetours.co.bw'
+export const facebook = 'https://www.facebook.com/search/pages/?q=Prestige%20Destinations%20Tours'
+export const tiktok = 'https://www.tiktok.com/@prestige.destinat'
 export const phone = '+267 77 968 662'
 export const whatsapp = 'https://wa.me/26777968662'
 export const media = name => import.meta.env.BASE_URL + name
