@@ -211,8 +211,8 @@ textarea{resize:vertical}
 .card-link{display:flex;align-items:end;align-self:stretch;width:100%}
 .card-link:focus-visible{outline-offset:-5px}
 .tree-branch>.tree-carousel{padding:0;overflow:hidden}
-.slide-controls{pointer-events:auto;position:absolute;z-index:2;right:12px;top:12px;display:flex;align-items:center;background:#13271fe8;color:#fff5e4;border:1px solid #f4d39880;border-radius:4px;font-size:.72rem}
-.slide-controls button{display:grid;place-items:center;min-height:40px;min-width:40px;background:transparent;border:0;color:inherit;padding:0}
+.slide-controls{pointer-events:auto;position:absolute;z-index:2;right:12px;top:12px;color:#fff5e4}
+.slide-controls button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #f4d39880;border-radius:50%;background:#13271fdf;color:inherit;padding:0}
 .slide-controls button:hover,.slide-controls button:focus-visible{background:#dfb373;color:#152c23}
 .hero-carousel .slide-controls{top:auto;right:max(5%,calc((100% - 1240px)/2));bottom:24px}
 .home-hero .slide-controls{bottom:77px}
@@ -227,7 +227,7 @@ textarea{resize:vertical}
 .admin-brand img{width:125px}
 .recovery-note{margin:0;font-size:.85rem;color:#405341}
 .sign-in .text-link{background:none;border:0;border-bottom:1px solid #ad875b;padding:3px 0}
-@media(max-width:680px){.slide-controls button{min-height:44px;min-width:42px}.home-hero .slide-controls{bottom:70px}}
+@media(max-width:680px){.slide-controls button{height:44px;width:44px}.home-hero .slide-controls{bottom:70px}}
 @media(prefers-reduced-motion:reduce){.card:hover img,.card:focus-within img,.tree-branch:hover img,.tree-branch:focus-within img{transform:none}}
 
 .experience-carousel{overflow:hidden}
@@ -236,4 +236,27 @@ textarea{resize:vertical}
 @media(prefers-reduced-motion:no-preference){
   .image-carousel img{animation:slide-in-image .35s ease-out}
   @keyframes slide-in-image{from{opacity:.25}to{opacity:1}}
+}
+
+/* Light line drawings sit on the paper sections beneath the photography. */
+.route-home,.route-destinations,.route-experiences,.route-shuttles,.route-about,.route-plan,.route-admin{
+  background-image:var(--page-art);
+  background-repeat:no-repeat;
+  background-position:right 2vw top var(--art-top,565px);
+  background-size:clamp(440px,70vw,1000px) auto;
+}
+.route-home{--page-art:url('./art/home.svg?no-inline');--art-top:calc(clamp(650px,88svh,980px) + 55px)}
+.route-destinations{--page-art:url('./art/destinations.svg?no-inline');--art-top:575px}
+.route-experiences{--page-art:url('./art/experiences.svg?no-inline');--art-top:563px}
+.route-shuttles{--page-art:url('./art/shuttles.svg?no-inline');--art-top:580px}
+.route-about{--page-art:url('./art/about.svg?no-inline');--art-top:575px}
+.route-plan{--page-art:url('./art/plan.svg?no-inline');--art-top:2rem;background-color:#f6efe1}
+.route-admin{--page-art:url('./art/admin.svg?no-inline');--art-top:1rem;min-height:calc(100svh - 92px)}
+@media(max-width:680px){
+  .route-home,.route-destinations,.route-experiences,.route-shuttles,.route-about,.route-plan,.route-admin{
+    background-position:right -8vw top var(--art-top-mobile,507px);
+    background-size:clamp(440px,115vw,620px) auto;
+  }
+  .route-home{--art-top-mobile:780px}
+  .route-plan,.route-admin{--art-top-mobile:0px}
 }

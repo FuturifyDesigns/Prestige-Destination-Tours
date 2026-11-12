@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { Pause, Play } from 'lucide-react'
 import { media } from './data'
 import widths from './carousel-widths.json'
 
@@ -66,9 +66,6 @@ export default function ImageCarousel({ images, label, variant, priority = false
     }
   }, [count, visible, documentVisible, playing, interacting, focused, next, nextSrc, sizes, priority])
 
-  function move(offset) {
-    setActive(index => (index + offset + count) % count)
-  }
 
   return <div
     ref={carousel}
@@ -84,11 +81,9 @@ export default function ImageCarousel({ images, label, variant, priority = false
       loading={priority && active === 0 ? 'eager' : 'lazy'}
       fetchPriority={priority && active === 0 ? 'high' : undefined} decoding="async"/>
     {count > 1 && <div className="slide-controls">
-      <button type="button" onClick={() => move(-1)} aria-label={'Previous image for ' + label}><ChevronLeft size={17} aria-hidden="true"/></button>
       <button type="button" onClick={() => setPlaying(value => !value)} aria-label={(playing ? 'Pause slideshow for ' : 'Play slideshow for ') + label}>
         {playing ? <Pause size={15} aria-hidden="true"/> : <Play size={15} aria-hidden="true"/>}
       </button>
-      <button type="button" onClick={() => move(1)} aria-label={'Next image for ' + label}><ChevronRight size={17} aria-hidden="true"/></button>
     </div>}
   </div>
 }
