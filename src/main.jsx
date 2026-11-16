@@ -8,6 +8,7 @@ import { destinations, experiences, transferRoutes, media, siteBase } from './da
 import { EmailLinks, SocialLinks, TelephoneLink, WhatsAppButton } from './Contact'
 import ImageCarousel from './ImageCarousel'
 import { cleanPath, navigation as links, pageEntries } from './routes'
+import { photos } from './gallery-data'
 import './style.css'
 
 const Gallery = lazy(() => import('./Gallery'))
@@ -66,7 +67,7 @@ function Home() {
     <div className="ribbon"><div className="wrap">{[[Binoculars, 'Private guided safaris', '/experiences'], [Waves, 'River cruises', '/experiences'], [Compass, 'Tailored adventures', '/experiences'], [Plane, 'Shuttles & transfers', '/shuttles']].map(([Icon, name, to]) => <Link key={name} to={to}><Icon size={22} strokeWidth={1.4}/>{name}</Link>)}</div></div>
     <section className="wrap section" id="discover"><div className="section-head" data-reveal><div><Eyebrow>Explore the region</Eyebrow><h2>Places worth <em>slowing down for.</em></h2></div><Link className="text-link" to="/destinations">All destinations <ArrowRight size={17}/></Link></div><Cards items={destinations.slice(0,3).map((item,index) => ({...item,alternate:['gallery/360855.webp','home-delta-slide.webp','home-falls-slide.webp'][index],image:['home-chobe.webp','plan.webp','home-falls.webp'][index]}))} kind="destination"/></section>
     <section className="feature wrap section" data-reveal><img src={media('lodge.webp')} alt="A lantern-lit safari lodge overlooking wetlands at sunset" loading="lazy"/><div><Eyebrow>Travel with Prestige</Eyebrow><h2>Make the journey <em>your own.</em></h2><p>Start with a place you’ve always wanted to see, an experience you’re curious about, or the dates you have in mind. We’ll help shape the details around you.</p><Link className="text-link" to="/about">Meet Prestige <ArrowRight size={17}/></Link></div></section>
-    <section className="feature wrap section" data-reveal><img src={media('gallery/360880.webp')} alt="An elephant herd gathers in the shade of a tree" loading="lazy"/><div><h2>From the safari gallery</h2><p>See wildlife encounters and river sunsets in our photo collection.</p><Link className="text-link" to="/gallery">Explore the gallery <ArrowRight size={17}/></Link></div></section>
+    <section className="feature wrap section" data-reveal><ImageCarousel variant="experience-carousel" label="Safari gallery preview" images={photos.map(([id, title]) => ({src: 'gallery/360' + id + '.webp', alt:title}))}/><div><h2>From the safari gallery</h2><p>See wildlife encounters and river sunsets in our photo collection.</p><Link className="text-link" to="/gallery">Explore the gallery <ArrowRight size={17}/></Link></div></section>
     <Callout image="hero.webp"/>
   </>
 }
