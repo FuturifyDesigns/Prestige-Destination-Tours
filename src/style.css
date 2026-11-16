@@ -314,3 +314,5 @@ body:has(.gallery-viewer[open]){overflow:hidden}
 @media(max-width:780px){.gallery-card{flex-basis:calc((100% - 18px)/2)}.gallery-hero{grid-template-columns:1fr;padding-top:85px;min-height:auto}.gallery-hero-image{aspect-ratio:1.85}.gallery-intro em{display:inline}}
 @media(max-width:480px){.gallery-grid{gap:9px}.gallery-card{flex-basis:calc((100% - 9px)/2)}.gallery-caption{padding:10px;font-size:.96rem}.gallery-intro h1{font-size:clamp(3rem,12vw,4rem)}.gallery-expand{width:28px;height:28px;right:7px;bottom:7px}.viewer-content>img{height:min(66dvh,550px)}}
 @media(prefers-reduced-motion:reduce){.gallery-frame img,.gallery-card{transition:none}.gallery-card:hover img,.gallery-card:focus-visible img{transform:none}}
+
+.reply-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}

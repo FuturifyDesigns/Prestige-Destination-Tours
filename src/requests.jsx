@@ -119,6 +119,17 @@ function PlanForm({ params, booking }) {
   </div>
 }
 
+function ReplyLinks({ email, subject }) {
+  const gmail = new URL('https://mail.google.com/mail/')
+  gmail.search = new URLSearchParams({ view:'cm', fs:'1', to:email, su:subject })
+  const outlook = new URL('https://outlook.office.com/mail/deeplink/compose')
+  outlook.search = new URLSearchParams({ to:email, subject })
+  return <div className="reply-actions" role="group" aria-label="Reply by email">
+    <a className="button" href={gmail.href} target="_blank" rel="noopener noreferrer"><Mail size={17} aria-hidden="true"/> Reply in Gmail</a>
+    <a className="button" href={outlook.href} target="_blank" rel="noopener noreferrer"><Mail size={17} aria-hidden="true"/> Reply in Outlook</a>
+  </div>
+}
+
 export function Admin({ recoveryUrl = new URL('admin/', window.location.href).href }) {
   const [recovering, setRecovering] = useState(recoveryHash)
   const [resetRequested, setResetRequested] = useState(false)
@@ -288,7 +299,7 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
       <div className="inbox-controls"><div className="tabs">{[['all','All requests'],['enquiry','Enquiries'],['booking','Bookings']].map(([id,name]) => <button key={id} aria-pressed={filter === id} onClick={() => {setFilter(id);setPage(0);setActive(null)}}>{name}</button>)}</div><span className="caption" role="status">{live ? 'Live updates' : 'Checking for updates…'}</span></div>
       <div className="inbox">
         <div className="request-list">{loading ? <p role="status">Loading requests…</p> : requests.length === 0 ? <p>No requests to display.</p> : requests.map(item => <button key={item.id} aria-pressed={active === item.id} onClick={() => setActive(item.id)}><strong>{item.name}</strong><small>{label(item.kind)} · {date(item.created_at)}</small><span>{item.status}</span></button>)}</div>
-        <div className="request-detail">{request && !loading ? <><div className="eyebrow">{label(request.kind)}</div><h2>{request.name}</h2><p>{request.email}{request.phone && <><br/>{request.phone}</>}</p><dl>{[['Destination',request.destination],['Experience',request.experience],['Travel date',request.travel_date],['Travellers',request.guests]].filter(([,value]) => value).map(([name,value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl><p className="request-message">{request.message}</p><label>Status<select value={request.status} disabled={saving} onChange={e => update(e.target.value)}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><a className="button" href={'mailto:' + encodeURIComponent(request.email) + '?subject=' + encodeURIComponent('Prestige Destination Tours | ' + label(request.kind))}><Mail size={17}/> Reply by email</a></> : <p>Select a request to view its details and reply.</p>}</div>
+        <div className="request-detail">{request && !loading ? <><div className="eyebrow">{label(request.kind)}</div><h2>{request.name}</h2><p>{request.email}{request.phone && <><br/>{request.phone}</>}</p><dl>{[['Destination',request.destination],['Experience',request.experience],['Travel date',request.travel_date],['Travellers',request.guests]].filter(([,value]) => value).map(([name,value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl><p className="request-message">{request.message}</p><label>Status<select value={request.status} disabled={saving} onChange={e => update(e.target.value)}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><ReplyLinks email={request.email} subject={'Prestige Destination Tours | ' + label(request.kind)}/></> : <p>Select a request to view its details and reply.</p>}</div>
       </div>
       <div className="pagination"><button className="plain" disabled={page === 0 || loading} onClick={() => {setActive(null);setPage(p => p-1)}}>Previous</button><span>Page {page+1}</span><button className="plain" disabled={!more || loading} onClick={() => {setActive(null);setPage(p => p+1)}}>Next</button></div>
     </>}
