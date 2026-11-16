@@ -152,6 +152,31 @@ function ReplyLinks({ request, kind }) {
   </div>
 }
 
+function RequestEditor({ request, saving, onCancel, onSave }) {
+  const [kind, setKind] = useState(request?.kind ?? 'enquiry')
+  function submit(event) {
+    event.preventDefault()
+    const values = Object.fromEntries(new FormData(event.currentTarget))
+    const data = Object.fromEntries(Object.entries(values).map(([key,value]) => [key,value.trim()]))
+    data.guests = data.guests ? Number(data.guests) : null
+    data.travel_date = data.travel_date || null
+    onSave(data, request?.id)
+  }
+  return <form className="request-editor" onSubmit={submit}>
+    <h2>{request ? 'Edit request' : 'Add request'}</h2>
+    <label>Request type<select name="kind" value={kind} onChange={event => setKind(event.target.value)}><option value="enquiry">Enquiry</option><option value="booking">Booking request</option></select></label>
+    <label>Name<input name="name" defaultValue={request?.name} maxLength={120} required/></label>
+    <label>Email<input name="email" type="email" defaultValue={request?.email} maxLength={254} required/></label>
+    <label>Phone<input name="phone" type="tel" defaultValue={request?.phone ?? ''} maxLength={40}/></label>
+    <label>Destination<input name="destination" defaultValue={request?.destination ?? ''} maxLength={80}/></label>
+    <label>Experience<input name="experience" defaultValue={request?.experience ?? ''} maxLength={100}/></label>
+    <label>Travel date<input name="travel_date" type="date" defaultValue={request?.travel_date ?? ''} required={kind === 'booking'}/></label>
+    <label>Travellers<input name="guests" type="number" min={1} max={999} defaultValue={request?.guests ?? ''} required={kind === 'booking'}/></label>
+    <label>Message<textarea name="message" rows={5} defaultValue={request?.message} maxLength={4000} required/></label>
+    <div className="reply-actions"><button type="submit" className="button" disabled={saving}>{saving ? 'Saving…' : 'Save request'}</button><button type="button" className="plain" disabled={saving} onClick={onCancel}>Cancel</button></div>
+  </form>
+}
+
 export function Admin({ recoveryUrl = new URL('admin/', window.location.href).href }) {
   const [recovering, setRecovering] = useState(recoveryHash)
   const [resetRequested, setResetRequested] = useState(false)
@@ -161,6 +186,7 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
   const [filter, setFilter] = useState('all')
   const [requests, setRequests] = useState([])
   const [active, setActive] = useState(null)
+  const [editor, setEditor] = useState(null)
   const [page, setPage] = useState(0)
   const [more, setMore] = useState(false)
   const [version, setVersion] = useState(0)
@@ -179,6 +205,7 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
       if (!value) {
         setRequests([])
         setActive(null)
+        setEditor(null)
       }
     })
     return () => data.subscription.unsubscribe()
@@ -219,7 +246,8 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
     let ignore = false
     async function load() {
       let query = db.from('travel_requests').select('*').order('created_at', {ascending:false}).order('id', {ascending:false}).range(page * 25, page * 25 + 25)
-      if (filter !== 'all') query = query.eq('kind', filter)
+      query = filter === 'trash' ? query.not('deleted_at', 'is', null) : query.is('deleted_at', null)
+      if (filter !== 'all' && filter !== 'trash') query = query.eq('kind', filter)
       const result = await query
       if (ignore) return
       if (result.error) setLoadError('Unable to load requests. The inbox will retry automatically.')
@@ -296,6 +324,38 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
     else setRequests(items => items.map(item => item.id === data.id ? data : item))
     setSaving(false)
   }
+  async function saveRequest(data, id) {
+    setSaving(true)
+    setError('')
+    const operation = id
+      ? db.from('travel_requests').update(data).eq('id', id).is('deleted_at', null)
+      : db.from('travel_requests').insert(data)
+    const result = await operation.select().single()
+    if (result.error) setError('Could not save the request. Check the details and try again.')
+    else {
+      setEditor(null)
+      setFilter('all')
+      setPage(0)
+      setActive(result.data.id)
+      setNotice(id ? 'Request updated.' : 'Request created.')
+      setVersion(v => v + 1)
+    }
+    setSaving(false)
+  }
+
+  async function moveRequest(id, restore) {
+    setSaving(true)
+    setError('')
+    const result = await db.from('travel_requests').update({deleted_at:restore ? null : new Date().toISOString()}).eq('id',id).select('id').single()
+    if (result.error) setError(restore ? 'Could not restore the request.' : 'Could not move the request to Trash.')
+    else {
+      setActive(null)
+      setRequests(items => items.filter(item => item.id !== id))
+      setNotice(restore ? 'Request restored.' : 'Request moved to Trash.')
+      setVersion(v => v + 1)
+    }
+    setSaving(false)
+  }
   const request = requests.find(item => item.id === active)
   const label = kind => kind === 'booking' ? 'Booking request' : 'Enquiry'
   const date = value => new Intl.DateTimeFormat('en-BW',{dateStyle:'medium',timeZone:'Africa/Gaborone'}).format(new Date(value))
@@ -318,10 +378,10 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
     {session && !isStaff && !recovering && <p>This account doesn’t have access to the Prestige staff inbox.</p>}
     {isStaff && <>
       {loadError && <p role="alert" className="error">{loadError}</p>}
-      <div className="inbox-controls"><div className="tabs">{[['all','All requests'],['enquiry','Enquiries'],['booking','Bookings']].map(([id,name]) => <button key={id} aria-pressed={filter === id} onClick={() => {setFilter(id);setPage(0);setActive(null)}}>{name}</button>)}</div><span className="caption" role="status">{live ? 'Live updates' : 'Checking for updates…'}</span></div>
+      <div className="inbox-controls"><div className="tabs">{[['all','All requests'],['enquiry','Enquiries'],['booking','Bookings'],['trash','Trash']].map(([id,name]) => <button key={id} aria-pressed={filter === id} onClick={() => {setFilter(id);setPage(0);setActive(null);setEditor(null)}}>{name}</button>)}</div><button type="button" className="button" disabled={saving} onClick={() => {setEditor({});setError('');setNotice('')}}>Add request</button><span className="caption" role="status">{live ? 'Live updates' : 'Checking for updates…'}</span></div>
       <div className="inbox">
-        <div className="request-list">{loading ? <p role="status">Loading requests…</p> : requests.length === 0 ? <p>No requests to display.</p> : requests.map(item => <button key={item.id} aria-pressed={active === item.id} onClick={() => setActive(item.id)}><strong>{item.name}</strong><small>{label(item.kind)} · {date(item.created_at)}</small><span>{item.status}</span></button>)}</div>
-        <div className="request-detail">{request && !loading ? <><div className="eyebrow">{label(request.kind)}</div><h2>{request.name}</h2><p>{request.email}{request.phone && <><br/>{request.phone}</>}</p><dl>{[['Destination',request.destination],['Experience',request.experience],['Travel date',request.travel_date],['Travellers',request.guests]].filter(([,value]) => value).map(([name,value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl><p className="request-message">{request.message}</p><label>Status<select value={request.status} disabled={saving} onChange={e => update(e.target.value)}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><ReplyLinks request={request} kind={label(request.kind)}/></> : <p>Select a request to view its details and reply.</p>}</div>
+        <div className="request-list">{loading ? <p role="status">Loading requests…</p> : requests.length === 0 ? <p>No requests to display.</p> : requests.map(item => <button key={item.id} aria-pressed={active === item.id} disabled={saving} onClick={() => {setActive(item.id);setEditor(null)}}><strong>{item.name}</strong><small>{label(item.kind)} · {date(item.created_at)}</small><span>{item.status}</span></button>)}</div>
+        <div className="request-detail">{editor ? <RequestEditor key={editor.id ?? 'new'} request={editor.id ? editor : null} saving={saving} onSave={saveRequest} onCancel={() => setEditor(null)}/> : request && !loading ? <><div className="eyebrow">{label(request.kind)}</div><h2>{request.name}</h2><p>{request.email}{request.phone && <><br/>{request.phone}</>}</p><dl>{[['Destination',request.destination],['Experience',request.experience],['Travel date',request.travel_date],['Travellers',request.guests]].filter(([,value]) => value).map(([name,value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl><p className="request-message">{request.message}</p><label>Status<select value={request.status} disabled={saving || Boolean(request.deleted_at)} onChange={e => update(e.target.value)}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label>{request.deleted_at ? <button type="button" className="button" disabled={saving} onClick={() => moveRequest(request.id,true)}>Restore request</button> : <><ReplyLinks request={request} kind={label(request.kind)}/><div className="reply-actions"><button type="button" className="plain" disabled={saving} onClick={() => {setError('');setNotice('');setEditor(request)}}>Edit request</button><button type="button" className="plain" disabled={saving} onClick={() => moveRequest(request.id,false)}>Move to Trash</button></div></>}</> : <p>Select a request to view its details and reply.</p>}</div>
       </div>
       <div className="pagination"><button className="plain" disabled={page === 0 || loading} onClick={() => {setActive(null);setPage(p => p-1)}}>Previous</button><span>Page {page+1}</span><button className="plain" disabled={!more || loading} onClick={() => {setActive(null);setPage(p => p+1)}}>Next</button></div>
     </>}

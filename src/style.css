@@ -316,3 +316,5 @@ body:has(.gallery-viewer[open]){overflow:hidden}
 @media(prefers-reduced-motion:reduce){.gallery-frame img,.gallery-card{transition:none}.gallery-card:hover img,.gallery-card:focus-visible img{transform:none}}
 
 .reply-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+
+.request-editor{display:grid;gap:12px}.request-editor h2{margin:0}.inbox-controls{flex-wrap:wrap}
