@@ -318,3 +318,18 @@ body:has(.gallery-viewer[open]){overflow:hidden}
 .reply-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 
 .request-editor{display:grid;gap:12px}.request-editor h2{margin:0}.inbox-controls{flex-wrap:wrap}
+
+.guest-reviews .section-head{align-items:flex-start;gap:20px}
+.review-form{width:min(100%,460px)}
+.review-form summary{width:fit-content;cursor:pointer;list-style:none}
+.review-form summary::-webkit-details-marker{display:none}
+.review-form form,.review-moderation article,.review-grid figure{padding:20px;border:1px solid #ded3bd;background:#fffaf0}
+.review-form form{margin-top:12px;display:grid;gap:10px}
+.review-form label{display:grid;gap:5px}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;margin-top:20px}
+.review-grid figure{margin:0}
+.review-grid blockquote{margin:8px 0 12px;overflow-wrap:anywhere;white-space:pre-wrap}
+.review-stars{color:#85551f;letter-spacing:.12em}
+.review-grid figcaption{font-weight:700}
+.review-moderation{margin-top:48px}
+.review-moderation article{margin:12px 0;overflow-wrap:anywhere}

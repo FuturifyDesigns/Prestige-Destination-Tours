@@ -2,15 +2,13 @@ import { imageSource } from './photos'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { Link, useSearchParams } from 'react-router-dom'
-import { createClient } from '@supabase/supabase-js'
+import { db } from './db'
+import { ReviewModeration } from './ReviewModeration'
 import { ArrowRight, CalendarDays, Check, Mail, ShieldCheck } from 'lucide-react'
 import { destinations, experiences, transferRoutes, media } from './data'
 import { EmailLinks, TelephoneLink } from './Contact'
 
 const recoveryHash = new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery'
-const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-const db = url && key ? createClient(url, key) : null
 const statuses = ['New', 'In progress', 'Closed']
 
 export function Plan() {
@@ -384,6 +382,7 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
         <div className="request-detail">{editor ? <RequestEditor key={editor.id ?? 'new'} request={editor.id ? editor : null} saving={saving} onSave={saveRequest} onCancel={() => setEditor(null)}/> : request && !loading ? <><div className="eyebrow">{label(request.kind)}</div><h2>{request.name}</h2><p>{request.email}{request.phone && <><br/>{request.phone}</>}</p><dl>{[['Destination',request.destination],['Experience',request.experience],['Travel date',request.travel_date],['Travellers',request.guests]].filter(([,value]) => value).map(([name,value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl><p className="request-message">{request.message}</p><label>Status<select value={request.status} disabled={saving || Boolean(request.deleted_at)} onChange={e => update(e.target.value)}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label>{request.deleted_at ? <button type="button" className="button" disabled={saving} onClick={() => moveRequest(request.id,true)}>Restore request</button> : <><ReplyLinks request={request} kind={label(request.kind)}/><div className="reply-actions"><button type="button" className="plain" disabled={saving} onClick={() => {setError('');setNotice('');setEditor(request)}}>Edit request</button><button type="button" className="plain" disabled={saving} onClick={() => moveRequest(request.id,false)}>Move to Trash</button></div></>}</> : <p>Select a request to view its details and reply.</p>}</div>
       </div>
       <div className="pagination"><button className="plain" disabled={page === 0 || loading} onClick={() => {setActive(null);setPage(p => p-1)}}>Previous</button><span>Page {page+1}</span><button className="plain" disabled={!more || loading} onClick={() => {setActive(null);setPage(p => p+1)}}>Next</button></div>
+      <ReviewModeration/>
     </>}
   </section>
 }

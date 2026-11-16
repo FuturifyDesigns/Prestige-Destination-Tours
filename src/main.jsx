@@ -13,6 +13,7 @@ import { canonicalFor, searchPages } from './search'
 import { imageSource } from './photos'
 import './style.css'
 
+const Reviews = lazy(() => import('./Reviews'))
 const Gallery = lazy(() => import('./Gallery'))
 const experiencePhotos = {
   'Private guided safaris': 'gallery/360863.webp',
@@ -70,6 +71,7 @@ function Home() {
     <section className="wrap section" id="discover"><div className="section-head" data-reveal><div><Eyebrow>Explore the region</Eyebrow><h2>Places worth <em>slowing down for.</em></h2></div><Link className="text-link" to="/destinations">All destinations <ArrowRight size={17}/></Link></div><Cards items={destinations.slice(0,3).map((item,index) => ({...item,alternate:['gallery/360855.webp','home-delta-slide.webp','home-falls-slide.webp'][index],image:['home-chobe.webp','plan.webp','home-falls.webp'][index]}))} kind="destination"/></section>
     <section className="feature wrap section" data-reveal><img {...imageSource('lodge.webp')} sizes="(max-width: 680px) 90vw, 650px" alt="A lantern-lit safari lodge overlooking wetlands at sunset" loading="lazy" decoding="async"/><div><Eyebrow>Travel with Prestige</Eyebrow><h2>Make the journey <em>your own.</em></h2><p>Start with a place you’ve always wanted to see, an experience you’re curious about, or the dates you have in mind. We’ll help shape the details around you.</p><Link className="text-link" to="/about">Meet Prestige <ArrowRight size={17}/></Link></div></section>
     <section className="feature wrap section" data-reveal><ImageCarousel variant="experience-carousel" label="Safari gallery preview" images={photos.map(([id, title]) => ({src: 'gallery/360' + id + '.webp', alt:title}))}/><div><h2>From the safari gallery</h2><p>See wildlife encounters and river sunsets in our photo collection.</p><Link className="text-link" to="/gallery">Explore the gallery <ArrowRight size={17}/></Link></div></section>
+    <Suspense fallback={null}><Reviews/></Suspense>
     <Callout image="hero.webp"/>
   </>
 }
