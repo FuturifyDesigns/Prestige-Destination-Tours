@@ -3,6 +3,7 @@ import { db } from './db'
 
 export default function Reviews() {
   const [reviews, setReviews] = useState([])
+  const [version, setVersion] = useState(0)
   const [kind, setKind] = useState('review')
   const [notice, setNotice] = useState('')
   const [saving, setSaving] = useState(false)
@@ -14,7 +15,7 @@ export default function Reviews() {
       .order('created_at',{ascending:false}).limit(6).abortSignal(controller.signal)
       .then(({data}) => {if (!controller.signal.aborted && data) setReviews(data)})
     return () => controller.abort()
-  }, [])
+  }, [version])
 
   async function submit(event) {
     event.preventDefault()
@@ -28,13 +29,15 @@ export default function Reviews() {
       return
     }
     if (fields.get('website')) return
+    setNotice('')
     setSaving(true)
     const {error} = await db.from('guest_reviews').insert({kind,name,rating:Number(fields.get('rating')),message})
     setSaving(false)
     if (error) setNotice('We couldn’t save your feedback. Please try again.')
     else {
       form.reset()
-      setNotice(kind === 'review' ? 'Thank you. Your review has been sent for approval.' : 'Thank you. Your feedback was sent privately to our team.')
+      if (kind === 'review') setVersion(value => value + 1)
+      setNotice(kind === 'review' ? 'Thank you. Your review is now public.' : 'Thank you. Your feedback was sent privately to our team.')
     }
   }
 
@@ -47,7 +50,7 @@ export default function Reviews() {
           <label>Share as<select value={kind} onChange={event => {setKind(event.target.value);setNotice('')}}>
             <option value="review">Public review</option><option value="feedback">Private feedback</option>
           </select></label>
-          <p className="caption">{kind === 'review' ? 'Your display name, rating and review may appear on our homepage after approval. Leave contact details out of your message.' : 'Your feedback goes directly to the Prestige team.'}</p>
+          <p className="caption">{kind === 'review' ? 'Your display name, rating and review will appear publicly on our homepage. Leave contact details out of your message.' : 'Your feedback goes directly to the Prestige team.'}</p>
           <label>Display name<input name="name" maxLength={80} required/></label>
           <label>Rating<select name="rating" defaultValue="" required><option value="" disabled>Choose a rating</option>
             {[5,4,3,2,1].map(n => <option key={n} value={n}>{n} out of 5</option>)}</select></label>
