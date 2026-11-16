@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { db } from './db'
 
@@ -42,10 +43,10 @@ export default function Reviews() {
   }
 
   return <section id="reviews" className="wrap section guest-reviews" aria-labelledby="reviews-heading">
-    <div className="section-head"><div><h2 id="reviews-heading">Guest reviews &amp; feedback</h2>
+    <div className="review-intro"><div><h2 id="reviews-heading">Guest reviews <em>&amp; feedback</em></h2>
       <p>Tell us about your experience with Prestige.</p></div>
       <details className="review-form">
-        <summary className="button">Leave a review or feedback</summary>
+        <summary className="button">Leave a review or feedback <ChevronDown className="review-toggle-icon" size={17} aria-hidden="true"/></summary>
         {db ? <form onSubmit={submit}>
           <label>Share as<select value={kind} onChange={event => {setKind(event.target.value);setNotice('')}}>
             <option value="review">Public review</option><option value="feedback">Private feedback</option>
