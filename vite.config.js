@@ -26,7 +26,7 @@ function describePage(html, route) {
     .replace(/<title>[^<]*<\/title>/, '<title>' + title + '</title>')
     .replace(/(<meta name="description" content=")[^"]*"/, '$1' + description + '"')
     .replace('</head>', '<link rel="canonical" href="' + url + '">' + schema + '</head>')
-    .replace('<div id="root"></div>', '<div id="root"><main><h1>' + heading + '</h1><p>' + description + '</p><nav aria-label="Explore Prestige">' + links + '</nav></main></div>')
+    .replace('<div id="root"></div>', '<div id="root"></div><noscript><main><h1>' + heading + '</h1><p>' + description + '</p><nav aria-label="Explore Prestige">' + links + '</nav></main></noscript>')
 }
 
 const policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'"
