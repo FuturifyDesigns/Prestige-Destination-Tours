@@ -34,9 +34,9 @@ export default function Gallery() {
     const motion = gsap.matchMedia()
     motion.add('(prefers-reduced-motion: no-preference)', () => {
       ScrollTrigger.batch(grid.current.children, {
-        start:'top 98%',
+        start:'top 112%',
         once:true,
-        onEnter: cards => gsap.fromTo(cards, {y:22, opacity:.45}, {y:0, opacity:1, duration:.58, stagger:.075, ease:'power2.out', clearProps:'transform,opacity'}),
+        onEnter: cards => gsap.fromTo(cards, {y:14, opacity:.85}, {y:0, opacity:1, duration:.42, stagger:.04, ease:'power2.out', clearProps:'transform,opacity'}),
       })
     }, grid)
     return () => motion.revert()

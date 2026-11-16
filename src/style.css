@@ -232,8 +232,8 @@ textarea{resize:vertical}
 .route-experiences .experience-list article:nth-child(even) .experience-carousel{order:2}
 @media(max-width:680px){.route-experiences .experience-list article:nth-child(even) .experience-carousel{order:0}}
 @media(prefers-reduced-motion:no-preference){
-  .image-carousel img{animation:slide-in-image .35s ease-out}
-  @keyframes slide-in-image{from{opacity:.25}to{opacity:1}}
+  .image-carousel img{animation:slide-in-image .20s ease-out}
+  @keyframes slide-in-image{from{opacity:.78}to{opacity:1}}
 }
 
 

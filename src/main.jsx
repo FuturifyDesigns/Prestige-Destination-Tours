@@ -153,19 +153,19 @@ function Layout() {
       const sections = main.current.querySelectorAll('[data-reveal]')
       sections.forEach((el, index) => {
         if (pathname === '/destinations' && el.classList.contains('card')) {
-          const edges = ['inset(100% 0 0 0)', 'inset(0 100% 0 0)', 'inset(0 0 0 100%)', 'inset(0 0 100% 0)', 'inset(12% 12% 12% 12%)']
-          const timeline = gsap.timeline({scrollTrigger:{trigger:el,start:'top 94%',once:true}})
+          const edges = ['inset(22% 0 0 0)', 'inset(0 22% 0 0)', 'inset(0 0 0 22%)', 'inset(0 0 22% 0)', 'inset(10% 10% 10% 10%)']
+          const timeline = gsap.timeline({scrollTrigger:{trigger:el,start:'top 112%',once:true}})
           timeline
-            .from(el, {y:26, opacity:0, duration:.65, ease:'power2.out', clearProps:'transform,opacity'})
-            .fromTo(el.querySelector('.card-carousel'), {clipPath:edges[(index - 1) % edges.length]}, {clipPath:'inset(0% 0% 0% 0%)', duration:.84, ease:'power3.out', clearProps:'clipPath'}, 0)
+            .from(el, {y:18, opacity:.8, duration:.42, ease:'power2.out', clearProps:'transform,opacity'})
+            .fromTo(el.querySelector('.card-carousel'), {clipPath:edges[(index - 1) % edges.length]}, {clipPath:'inset(0% 0% 0% 0%)', duration:.55, ease:'power3.out', clearProps:'clipPath'}, 0)
             .from(el.querySelector('.card-info'), {y:22, opacity:0, duration:.56, ease:'power2.out', clearProps:'transform,opacity'}, .18)
           return
         }
         if (pathname === '/shuttles' && el.classList.contains('shuttle-card')) {
           const featured = el === main.current.querySelector('.shuttle-card')
-          const timeline = gsap.timeline({scrollTrigger:{trigger:el,start:'top 94%',once:true}})
+          const timeline = gsap.timeline({scrollTrigger:{trigger:el,start:'top 112%',once:true}})
           timeline
-            .from(el, {x:slide ? (featured ? -36 : (index % 2 ? -28 : 28)) : 0, y:slide ? 12 : 28, opacity:0, duration:.72, ease:'power3.out', clearProps:'transform,opacity'})
+            .from(el, {x:slide ? (featured ? -36 : (index % 2 ? -28 : 28)) : 0, y:slide ? 12 : 22, opacity:.8, duration:.52, ease:'power3.out', clearProps:'transform,opacity'})
             .from(el.querySelector('.shuttle-card-image img'), {scale:1.1, duration:.88, ease:'power2.out', clearProps:'transform'}, 0)
             .from(el.querySelector('.shuttle-card-body'), {y:16, opacity:0, duration:.58, ease:'power2.out', clearProps:'transform,opacity'}, .13)
           return
@@ -173,7 +173,7 @@ function Layout() {
         let start = {y: 24}
         if (pathname === '/experiences' && el.classList.contains('feature')) start = slide ? {x: index % 2 ? 46 : -46} : {y: 24}
         if (pathname === '/about' && el.classList.contains('tree-branch')) start = {y: 30, scale: .97}
-        gsap.from(el, {...start, opacity:0, duration:.8, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 94%',once:true}})
+        gsap.from(el, {...start, opacity:el.querySelector('img') ? .8 : 0, duration:.55, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 112%',once:true}})
       })
       const branches = main.current.querySelector('.tree-branches')
       if (branches) gsap.from(branches, {'--branch-progress':0,duration:1.15,ease:'power2.out',scrollTrigger:{trigger:branches,start:'top 88%',once:true}})
