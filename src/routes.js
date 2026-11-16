@@ -4,6 +4,7 @@ export const navigation = [
   ['/experiences', 'Experiences'],
   ['/shuttles', 'Shuttles'],
   ['/about', 'About'],
+  ['/gallery', 'Gallery'],
 ]
 
 export const pageEntries = [...navigation.slice(1), ['/plan', 'Plan your trip']]
