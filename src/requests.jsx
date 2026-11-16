@@ -1,3 +1,4 @@
+import { imageSource } from './photos'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -94,7 +95,7 @@ function PlanForm({ params, booking }) {
     return errors[name] && <span className="field-error" id={name + '-error'}>{errors[name]}</span>
   }
   return <div className="wrap section planning" ref={planner}>
-    <aside data-intro><div className="eyebrow"><CalendarDays size={16} aria-hidden="true"/> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img src={media('plan-hero.webp')} alt="Binoculars and a map on a table overlooking Botswana wetlands"/><div className="direct"><EmailLinks/><TelephoneLink/></div></aside>
+    <aside data-intro><div className="eyebrow"><CalendarDays size={16} aria-hidden="true"/> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img {...imageSource('plan-hero.webp')} sizes="(max-width: 680px) 90vw, 480px" loading="lazy" decoding="async" alt="Binoculars and a map on a table overlooking Botswana wetlands"/><div className="direct"><EmailLinks/><TelephoneLink/></div></aside>
     <section className="form-panel" data-intro>
       <div className="tabs" aria-label="Request type"><Link aria-current={booking ? undefined : 'page'} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'enquiry'})}>Enquiry</Link><Link aria-current={booking ? 'page' : undefined} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'booking'})}>Booking request</Link></div>
       {received ? <div className="confirmation" role="status"><Check/><h2>Request received</h2><p>Our team will follow up at the email address you provided.</p><button className="button" onClick={() => setReceived(false)}>Send another request</button></div> : <form onSubmit={submit} noValidate>

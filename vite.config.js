@@ -2,6 +2,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import { pageEntries } from './src/routes.js'
+import { leadPhotos, heroImageSizes, galleryCoverSizes } from './src/photo-layout.js'
+import photoVariants from './src/photo-variants.json' with { type: 'json' }
 
 import { canonicalFor, searchPages, siteOrigin } from './src/search.js'
 
@@ -22,7 +24,16 @@ function describePage(html, route) {
     '<a href="' + canonicalFor(path) + '">' + escapeHtml(label) + '</a>'
   ).join(' · ')
   const schema = route === '/' ? '<script type="application/ld+json">' + JSON.stringify(homeSchema) + '</script>' : ''
+  const lead = leadPhotos[route]
+  const prefix = route === '/' ? './' : '../'
+  const candidates = photoVariants[lead]
+  const preload = candidates?.length > 1
+    ? '<link rel="preload" as="image" fetchpriority="high" imagesrcset="' +
+      candidates.map(([width, file]) => prefix + file + ' ' + width + 'w').join(', ') +
+      '" imagesizes="' + (route === '/gallery' ? galleryCoverSizes : heroImageSizes) + '">'
+    : ''
   return html
+    .replace('</head>', preload + '</head>')
     .replace(/<title>[^<]*<\/title>/, '<title>' + title + '</title>')
     .replace(/(<meta name="description" content=")[^"]*"/, '$1' + description + '"')
     .replace('</head>', '<link rel="canonical" href="' + url + '">' + schema + '</head>')

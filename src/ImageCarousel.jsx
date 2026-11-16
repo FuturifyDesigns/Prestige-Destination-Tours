@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { media } from './data'
-import widths from './carousel-widths.json'
+import { imageSource } from './photos'
+import { heroImageSizes } from './photo-layout'
 
 const imageSizes = {
-  'hero-carousel': '(max-width: 900px) 1100px, 100vw',
+  'hero-carousel': heroImageSizes,
   'card-carousel': '(max-width: 680px) 90vw, (max-width: 900px) 45vw, 420px',
   'tree-carousel': '(max-width: 680px) 85vw, 410px',
   'experience-carousel': '(max-width: 680px) 85vw, 650px',
-}
-
-function imageSource(src) {
-  const full = media(src)
-  const [small, original] = widths[src] ?? []
-  if (!original) return {src:full}
-  return {src:full, srcSet:media(src.replace('.webp','-small.webp')) + ' ' + small + 'w, ' + full + ' ' + original + 'w'}
 }
 
 export default function ImageCarousel({ images, label, variant, priority = false }) {

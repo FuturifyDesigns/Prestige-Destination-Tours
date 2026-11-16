@@ -4,11 +4,13 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { media } from './data'
 import { photos } from './gallery-data'
+import { imageSource } from './photos'
+import { galleryCoverSizes } from './photo-layout'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const filters = [['all','All photos'],['wildlife','Wildlife'],['river','River & wetlands']]
-const photoUrl = (id, thumbnail = false) => media('gallery/360' + id + (thumbnail ? '-thumb' : '') + '.webp')
+const photoUrl = id => media('gallery/360' + id + '.webp')
 
 export default function Gallery() {
   const [filter, setFilter] = useState('all')
@@ -51,7 +53,7 @@ export default function Gallery() {
 
   return <div ref={page}>
     <section className="gallery-hero" aria-labelledby="gallery-title">
-      <div className="gallery-hero-image"><img className="gallery-cover" src={photoUrl(885)} fetchPriority="high" alt="Safari boats silhouetted against an orange river sunset"/></div>
+      <div className="gallery-hero-image"><img className="gallery-cover" {...imageSource('gallery/360885.webp')} sizes={galleryCoverSizes} fetchPriority="high" decoding="async" alt="Safari boats silhouetted against an orange river sunset"/></div>
       <div className="gallery-intro">
         <h1 id="gallery-title">Safari <em>gallery.</em></h1>
         <p>Elephants in the shallows, leopards in the grass, and the last light on the river.</p>
@@ -71,7 +73,7 @@ export default function Gallery() {
           trigger.current = event.currentTarget
           setSelected(index)
         }}>
-          <span className="gallery-frame"><img src={photoUrl(id, true)} alt="" loading="lazy" decoding="async"/><span className="gallery-expand" aria-hidden="true"><Maximize2 size={17}/></span></span>
+          <span className="gallery-frame"><img {...imageSource('gallery/360' + id + '.webp')} sizes="(max-width: 480px) 45vw, (max-width: 780px) 44vw, (max-width: 1378px) 30vw, 410px" alt="" loading="lazy" decoding="async"/><span className="gallery-expand" aria-hidden="true"><Maximize2 size={17}/></span></span>
           <span className="gallery-caption">{title}</span>
         </button>)}
       </div>

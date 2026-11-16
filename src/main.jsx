@@ -10,6 +10,7 @@ import ImageCarousel from './ImageCarousel'
 import { cleanPath, navigation as links, pageEntries } from './routes'
 import { photos } from './gallery-data'
 import { canonicalFor, searchPages } from './search'
+import { imageSource } from './photos'
 import './style.css'
 
 const Gallery = lazy(() => import('./Gallery'))
@@ -59,7 +60,7 @@ function Cards({ items, kind }) {
 }
 
 function Callout({ image }) {
-  return <section className="callout">{image && <img src={media(image)} alt="" loading="lazy"/>}<div data-reveal><Eyebrow>Plan your journey</Eyebrow><h2>Where would you <em>like to go?</em></h2><Button to="/plan?mode=enquiry">Talk to our team</Button></div></section>
+  return <section className="callout">{image && <img {...imageSource(image)} sizes="100vw" alt="" loading="lazy" decoding="async"/>}<div data-reveal><Eyebrow>Plan your journey</Eyebrow><h2>Where would you <em>like to go?</em></h2><Button to="/plan?mode=enquiry">Talk to our team</Button></div></section>
 }
 
 function Home() {
@@ -67,7 +68,7 @@ function Home() {
     <Hero home image="home-hero.webp" alternate="home-slide.webp" label="Private safaris & tailored journeys" title="Botswana, at" accent="your own pace." text="Private guided safaris, river cruises and wilderness journeys shaped around the way you want to travel."/>
     <div className="ribbon"><div className="wrap">{[[Binoculars, 'Private guided safaris', '/experiences'], [Waves, 'River cruises', '/experiences'], [Compass, 'Tailored adventures', '/experiences'], [Plane, 'Shuttles & transfers', '/shuttles']].map(([Icon, name, to]) => <Link key={name} to={to}><Icon size={22} strokeWidth={1.4}/>{name}</Link>)}</div></div>
     <section className="wrap section" id="discover"><div className="section-head" data-reveal><div><Eyebrow>Explore the region</Eyebrow><h2>Places worth <em>slowing down for.</em></h2></div><Link className="text-link" to="/destinations">All destinations <ArrowRight size={17}/></Link></div><Cards items={destinations.slice(0,3).map((item,index) => ({...item,alternate:['gallery/360855.webp','home-delta-slide.webp','home-falls-slide.webp'][index],image:['home-chobe.webp','plan.webp','home-falls.webp'][index]}))} kind="destination"/></section>
-    <section className="feature wrap section" data-reveal><img src={media('lodge.webp')} alt="A lantern-lit safari lodge overlooking wetlands at sunset" loading="lazy"/><div><Eyebrow>Travel with Prestige</Eyebrow><h2>Make the journey <em>your own.</em></h2><p>Start with a place you’ve always wanted to see, an experience you’re curious about, or the dates you have in mind. We’ll help shape the details around you.</p><Link className="text-link" to="/about">Meet Prestige <ArrowRight size={17}/></Link></div></section>
+    <section className="feature wrap section" data-reveal><img {...imageSource('lodge.webp')} sizes="(max-width: 680px) 90vw, 650px" alt="A lantern-lit safari lodge overlooking wetlands at sunset" loading="lazy" decoding="async"/><div><Eyebrow>Travel with Prestige</Eyebrow><h2>Make the journey <em>your own.</em></h2><p>Start with a place you’ve always wanted to see, an experience you’re curious about, or the dates you have in mind. We’ll help shape the details around you.</p><Link className="text-link" to="/about">Meet Prestige <ArrowRight size={17}/></Link></div></section>
     <section className="feature wrap section" data-reveal><ImageCarousel variant="experience-carousel" label="Safari gallery preview" images={photos.map(([id, title]) => ({src: 'gallery/360' + id + '.webp', alt:title}))}/><div><h2>From the safari gallery</h2><p>See wildlife encounters and river sunsets in our photo collection.</p><Link className="text-link" to="/gallery">Explore the gallery <ArrowRight size={17}/></Link></div></section>
     <Callout image="hero.webp"/>
   </>
@@ -87,9 +88,9 @@ function Shuttles() {
     <section className="wrap section shuttle-routes" aria-labelledby="shuttle-routes-title">
       <div className="section-head" data-reveal><div><Eyebrow>Airport & cross-border routes</Eyebrow><h2 id="shuttle-routes-title">Where are you <em>headed?</em></h2></div></div>
       <div className="shuttle-grid">
-        {transferRoutes.map(({name,area,text,image,small,alt}) => <article className="shuttle-card" key={name} data-reveal>
+        {transferRoutes.map(({name,area,text,image,alt}) => <article className="shuttle-card" key={name} data-reveal>
           <div className="shuttle-card-image">
-            <img src={media(image)} srcSet={small ? media(small) + ' 540w, ' + media(image) + ' 1024w' : undefined} sizes="(max-width: 680px) 90vw, (max-width: 1378px) 45vw, 612px" alt={alt} loading="lazy" decoding="async"/>
+            <img {...imageSource(image)} sizes="(max-width: 680px) 90vw, (max-width: 1378px) 45vw, 612px" alt={alt} loading="lazy" decoding="async"/>
           </div>
           <div className="shuttle-card-body">
             <Eyebrow>{area}</Eyebrow><h3>{name}</h3><p>{text}</p>
@@ -99,7 +100,7 @@ function Shuttles() {
       </div>
     </section>
     <section className="wrap feature shuttle-photo" data-reveal>
-      <img src={media('hotel.webp')} alt="Prestige Destination Tours shuttle outside a hotel" loading="lazy"/>
+      <img {...imageSource('hotel.webp')} sizes="(max-width: 680px) 90vw, 650px" alt="Prestige Destination Tours shuttle outside a hotel" loading="lazy" decoding="async"/>
       <div><Eyebrow>Plan your pickup</Eyebrow><h2>Tell us where <em>to meet you.</em></h2><p>Share your travel date, group size and pickup and drop-off details. Our team will email you to confirm availability and arrange the transfer.</p><Button to={planLink('experience','Shuttles and transfers','enquiry')}>Ask about transfers</Button></div>
     </section>
   </>
@@ -116,7 +117,7 @@ function About() {
     <Hero image="about-hero.webp" alternate="about-slide.webp" label="About Prestige" title="A more personal" accent="way to explore." text="We plan guided safaris, river cruises and wilderness adventures around the places you want to see."/>
     <section className="wrap section about-tree" aria-labelledby="tree-title">
       <div className="tree-root" data-reveal>
-        <img src={media('about.webp')} alt="A safari guide showing travellers the floodplain" loading="lazy"/>
+        <img {...imageSource('about.webp')} sizes="(max-width: 680px) 90vw, 650px" alt="A safari guide showing travellers the floodplain" loading="lazy" decoding="async"/>
         <div><Eyebrow>Our approach</Eyebrow><h2 id="tree-title">Rooted in <em>Botswana.</em></h2><p>From Chobe’s riverbanks to the Okavango waterways and the mist of Victoria Falls, we bring together guided experiences that connect you with the region.</p></div>
       </div>
       <div className="tree-branches">
