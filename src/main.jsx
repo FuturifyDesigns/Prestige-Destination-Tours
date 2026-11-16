@@ -9,6 +9,7 @@ import { EmailLinks, SocialLinks, TelephoneLink, WhatsAppButton } from './Contac
 import ImageCarousel from './ImageCarousel'
 import { cleanPath, navigation as links, pageEntries } from './routes'
 import { photos } from './gallery-data'
+import { canonicalFor, searchPages } from './search'
 import './style.css'
 
 const Gallery = lazy(() => import('./Gallery'))
@@ -135,7 +136,12 @@ function Layout() {
   useLayoutEffect(() => {
     setMenu(false)
     window.scrollTo(0,0)
-    document.title = (links.find(([route]) => route === pathname)?.[1] ?? (pathname === '/plan' ? 'Plan your trip' : 'Page unavailable')) + ' | Prestige Destination Tours'
+    const metadata = searchPages[pathname]
+    document.title = metadata?.[0] ?? 'Page unavailable | Prestige Destination Tours'
+    document.querySelector('meta[name="description"]')?.setAttribute('content', metadata?.[1] ?? '')
+    const canonical = document.querySelector('link[rel="canonical"]')
+    if (metadata) canonical?.setAttribute('href', canonicalFor(pathname))
+    else canonical?.removeAttribute('href')
     const motion = gsap.matchMedia()
     motion.add('(prefers-reduced-motion: no-preference)', () => {
       const intro = main.current.querySelectorAll('[data-intro]')
