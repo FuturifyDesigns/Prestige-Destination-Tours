@@ -10,10 +10,10 @@ const moduleUrl = new URL(import.meta.url)
 export const siteBase = new URL('../', moduleUrl).pathname
 export const media = name => siteBase + name
 export const destinations = [
-  { name: 'Chobe', type: 'Wildlife & riverfront', image: 'chobe.webp', alternate: 'chobe-slide.webp', text: 'Follow the Chobe River through elephant country, with game drives and time on the water.' },
+  { name: 'Chobe', type: 'Wildlife & riverfront', image: 'chobe.webp', alternate: 'gallery/360858.webp', text: 'Follow the Chobe River through elephant country, with game drives and time on the water.' },
   { name: 'Okavango', type: 'Waterways & wilderness', image: 'delta.webp', alternate: 'okavango-slide.webp', text: 'Explore a landscape of winding channels, islands and floodplains on a journey shaped around the season.' },
   { name: 'Victoria Falls', type: 'Cross-border discovery', image: 'falls.webp', alternate: 'falls-slide.webp', text: 'Plan a trip to one of the region’s great natural wonders, with cross-border transfers available on request.' },
-  { name: 'Kasane', type: 'Northern Botswana', image: 'kasane.webp', alternate: 'kasane-slide.webp', text: 'Start in Kasane, a gateway to Chobe and an ideal base for northern Botswana adventures.' },
+  { name: 'Kasane', type: 'Northern Botswana', image: 'kasane.webp', alternate: 'gallery/360861.webp', text: 'Start in Kasane, a gateway to Chobe and an ideal base for northern Botswana adventures.' },
   { name: 'Kachikau', type: 'Chobe District', image: 'kachikau.webp', alternate: 'kachikau-slide.webp', text: 'Ask our team about including Kachikau in a wider Chobe District itinerary.' },
 ]
 export const experiences = [
