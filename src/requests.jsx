@@ -130,6 +130,8 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
   const [page, setPage] = useState(0)
   const [more, setMore] = useState(false)
   const [version, setVersion] = useState(0)
+  const [live, setLive] = useState(false)
+  const [loadError, setLoadError] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(Boolean(db))
   const [saving, setSaving] = useState(false)
@@ -149,17 +151,49 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
   }, [])
   useEffect(() => {
     if (!isStaff) return
+    let timer
+    let disposed = false
+    const refresh = () => {
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => setVersion(v => v + 1), 150)
+    }
+    const channel = db.channel('staff-travel-requests')
+      .on('postgres_changes', {event:'INSERT', schema:'public', table:'travel_requests'}, refresh)
+      .on('postgres_changes', {event:'UPDATE', schema:'public', table:'travel_requests'}, refresh)
+      .subscribe(status => {
+        if (disposed) return
+        setLive(status === 'SUBSCRIBED')
+        if (status === 'SUBSCRIBED') refresh()
+      })
+    window.addEventListener('focus', refresh)
+    return () => {
+      disposed = true
+      window.clearTimeout(timer)
+      window.removeEventListener('focus', refresh)
+      void db.removeChannel(channel)
+    }
+  }, [isStaff])
+
+  useEffect(() => {
+    if (!isStaff) return
+    const interval = window.setInterval(() => setVersion(v => v + 1), live ? 60000 : 10000)
+    return () => window.clearInterval(interval)
+  }, [isStaff, live])
+
+  useEffect(() => {
+    if (!isStaff) return
     let ignore = false
     async function load() {
-      setLoading(true)
-      setError('')
       let query = db.from('travel_requests').select('*').order('created_at', {ascending:false}).order('id', {ascending:false}).range(page * 25, page * 25 + 25)
       if (filter !== 'all') query = query.eq('kind', filter)
       const result = await query
       if (ignore) return
-      setRequests(result.data?.slice(0,25) ?? [])
-      setMore((result.data?.length ?? 0) > 25)
-      if (result.error) setError('Unable to load requests. Use Refresh to try again.')
+      if (result.error) setLoadError('Unable to load requests. The inbox will retry automatically.')
+      else {
+        setLoadError('')
+        setRequests(result.data.slice(0,25))
+        setMore(result.data.length > 25)
+      }
       setLoading(false)
     }
     load()
@@ -249,7 +283,8 @@ export function Admin({ recoveryUrl = new URL('admin/', window.location.href).hr
     </form> : <form className="form-panel" onSubmit={login}><label>Staff email<input name="email" type="email" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button className="button" disabled={saving}>{saving ? 'Signing in…' : 'Sign in'}</button><button className="text-link" type="button" onClick={() => {setResetRequested(true);setError('');setNotice('')}}>Set or reset password</button><button className="text-link" type="button" onClick={() => {setSetupCode(true);setError('');setNotice('')}}>Use a setup code</button></form>)}
     {session && !isStaff && !recovering && <p>This account doesn’t have access to the Prestige staff inbox.</p>}
     {isStaff && <>
-      <div className="inbox-controls"><div className="tabs">{[['all','All requests'],['enquiry','Enquiries'],['booking','Bookings']].map(([id,name]) => <button key={id} aria-pressed={filter === id} onClick={() => {setFilter(id);setPage(0);setActive(null)}}>{name}</button>)}</div><button className="plain" onClick={() => setVersion(v => v+1)}>Refresh</button></div>
+      {loadError && <p role="alert" className="error">{loadError}</p>}
+      <div className="inbox-controls"><div className="tabs">{[['all','All requests'],['enquiry','Enquiries'],['booking','Bookings']].map(([id,name]) => <button key={id} aria-pressed={filter === id} onClick={() => {setFilter(id);setPage(0);setActive(null)}}>{name}</button>)}</div><span className="caption" role="status">{live ? 'Live updates' : 'Checking for updates…'}</span></div>
       <div className="inbox">
         <div className="request-list">{loading ? <p role="status">Loading requests…</p> : requests.length === 0 ? <p>No requests to display.</p> : requests.map(item => <button key={item.id} aria-pressed={active === item.id} onClick={() => setActive(item.id)}><strong>{item.name}</strong><small>{label(item.kind)} · {date(item.created_at)}</small><span>{item.status}</span></button>)}</div>
         <div className="request-detail">{request && !loading ? <><div className="eyebrow">{label(request.kind)}</div><h2>{request.name}</h2><p>{request.email}{request.phone && <><br/>{request.phone}</>}</p><dl>{[['Destination',request.destination],['Experience',request.experience],['Travel date',request.travel_date],['Travellers',request.guests]].filter(([,value]) => value).map(([name,value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl><p className="request-message">{request.message}</p><label>Status<select value={request.status} disabled={saving} onChange={e => update(e.target.value)}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><a className="button" href={'mailto:' + encodeURIComponent(request.email) + '?subject=' + encodeURIComponent('Prestige Destination Tours | ' + label(request.kind))}><Mail size={17}/> Reply by email</a></> : <p>Select a request to view its details and reply.</p>}</div>

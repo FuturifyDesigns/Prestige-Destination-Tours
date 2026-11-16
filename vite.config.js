@@ -29,7 +29,7 @@ function describePage(html, route) {
     .replace('<div id="root"></div>', '<div id="root"></div><noscript><main><h1>' + heading + '</h1><p>' + description + '</p><nav aria-label="Explore Prestige">' + links + '</nav></main></noscript>')
 }
 
-const policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'"
+const policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'"
 
 export default defineConfig({
   base: './',
