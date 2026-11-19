@@ -4,8 +4,8 @@ import gsap from 'gsap'
 import { Link, useSearchParams } from 'react-router-dom'
 import { db } from './db'
 import { ReviewModeration } from './ReviewModeration'
-import { ArrowRight, CalendarDays, Check, Mail, ShieldCheck } from 'lucide-react'
-import { destinations, experiences, transferRoutes, media } from './data'
+import { ArrowRight, CalendarDays, Check, Mail, MessageCircle, ShieldCheck } from 'lucide-react'
+import { destinations, experiences, transferRoutes, media, whatsapp } from './data'
 import { EmailLinks, TelephoneLink } from './Contact'
 
 const recoveryHash = new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery'
@@ -31,6 +31,7 @@ function PlanForm({ params, booking }) {
   const [result, setResult] = useState('')
   const [busy, setBusy] = useState(false)
   const [received, setReceived] = useState(false)
+  const [submittedRequest, setSubmittedRequest] = useState(null)
   const [errors, setErrors] = useState({})
   const today = new Intl.DateTimeFormat('en-CA', {timeZone:'Africa/Gaborone',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
   async function submit(event) {
@@ -75,6 +76,7 @@ function PlanForm({ params, booking }) {
     try {
       const { error } = await db.from('travel_requests').insert(data)
       if (error) throw error
+      setSubmittedRequest(data)
       setReceived(true)
     } catch (error) {
       setResult(error?.code === 'PT429' ? 'Too many requests were sent for this email. Wait a few minutes or contact us directly.' : 'We couldn’t save your request. Please try again or contact us directly.')
@@ -96,7 +98,7 @@ function PlanForm({ params, booking }) {
     <aside data-intro><div className="eyebrow"><CalendarDays size={16} aria-hidden="true"/> TRIP PLANNING</div><h1>Let’s plan <em>your trip.</em></h1><p>Tell us where you’d like to go and when. We’ll email you to discuss the details and confirm availability.</p><img {...imageSource('plan-hero.webp')} sizes="(max-width: 680px) 90vw, 480px" loading="lazy" decoding="async" alt="Binoculars and a map on a table overlooking Botswana wetlands"/><div className="direct"><EmailLinks/><TelephoneLink/></div></aside>
     <section className="form-panel" data-intro>
       <div className="tabs" aria-label="Request type"><Link aria-current={booking ? undefined : 'page'} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'enquiry'})}>Enquiry</Link><Link aria-current={booking ? 'page' : undefined} to={'/plan?' + new URLSearchParams({...Object.fromEntries(params),mode:'booking'})}>Booking request</Link></div>
-      {received ? <div className="confirmation" role="status"><Check/><h2>Request received</h2><p>Our team will follow up at the email address you provided.</p><button className="button" onClick={() => setReceived(false)}>Send another request</button></div> : <form onSubmit={submit} noValidate>
+      {received ? <div className="confirmation"><Check aria-hidden="true"/><h2 role="status">Request received</h2><p>Your request is saved. Our team will follow up at the email address you provided.</p><WhatsAppRequest request={submittedRequest}/><button className="button outline" onClick={() => { setReceived(false); setSubmittedRequest(null) }}>Send another request</button></div> : <form onSubmit={submit} noValidate>
       <h2>{booking ? 'Request a booking' : 'Send an enquiry'}</h2>
       <div className="form-grid">
       <label>Full name<input name="name" autoComplete="name" maxLength="120" required {...fieldProps('name')}/>{fieldError('name')}</label>
@@ -114,6 +116,28 @@ function PlanForm({ params, booking }) {
       <button className="button" disabled={busy}>{busy ? 'Sending…' : booking ? 'Send booking request' : 'Send enquiry'} <ArrowRight size={17}/></button>
       </form>}
     </section>
+  </div>
+}
+
+function WhatsAppRequest({ request }) {
+  if (!request) return null
+  const fields = [
+    ['Name', request.name], ['Email', request.email], ['Telephone', request.phone],
+    ['Destination', request.destination || 'Help me choose'],
+    ['Experience', request.experience || 'Help me choose'],
+    ['Preferred date', request.travel_date], ['Travellers', request.guests],
+  ]
+  const message = [
+    `Hello Prestige Destinations Tours, I submitted a ${request.kind === 'booking' ? 'booking request' : 'travel enquiry'} on your website.`,
+    '', ...fields.map(([label, value]) => `${label}: ${value === '' || value == null ? 'Not provided' : value}`),
+    '', 'Trip details:', request.message,
+    '', 'Please follow up on my request. Availability is still to be confirmed.',
+  ].join('\n')
+  const link = `${whatsapp}?text=${encodeURIComponent(message)}`
+  return <div className="request-whatsapp">
+    <p>You can also share these details with us on WhatsApp.</p>
+    <a className="button" href={link} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true"/> Send on WhatsApp</a>
+    <p className="caption">WhatsApp opens with your request filled in. Review it and tap Send to share it with +267 77968662.</p>
   </div>
 }
 

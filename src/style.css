@@ -105,6 +105,12 @@ textarea{resize:vertical}
 .caption{font-size:.8rem;color:#575e4f}
 .trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
 .confirmation{padding:26px 0}
+.request-whatsapp{margin:24px 0;padding:22px;border:1px solid #17604433;background:#17604408;border-radius:12px}
+.request-whatsapp .button{background:#176044;color:#fff;display:inline-flex;gap:10px;align-items:center}
+.request-whatsapp .button:hover{background:#0e4931}
+.request-whatsapp .caption{margin:14px 0 0;line-height:1.6}
+.confirmation>.button.outline{background:transparent;color:var(--ink,#203027);border:1px solid currentColor}
+@media(max-width:480px){.request-whatsapp{padding:18px}.request-whatsapp .button{width:100%;justify-content:center}}
 .error{color:#8b2f21}
 .staff{min-height:60vh}
 .staff.sign-in{max-width:580px}
