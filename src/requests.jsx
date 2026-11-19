@@ -121,17 +121,30 @@ function PlanForm({ params, booking }) {
 
 function WhatsAppRequest({ request }) {
   if (!request) return null
-  const fields = [
-    ['Name', request.name], ['Email', request.email], ['Telephone', request.phone],
-    ['Destination', request.destination || 'Help me choose'],
-    ['Experience', request.experience || 'Help me choose'],
-    ['Preferred date', request.travel_date], ['Travellers', request.guests],
+  const booking = request.kind === 'booking'
+  const date = request.travel_date ? new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+  }).format(new Date(`${request.travel_date}T00:00:00Z`)) : 'To be arranged'
+  const contact = [
+    `Name: ${request.name}`, `Email: ${request.email}`,
+    ...(request.phone ? [`Telephone: ${request.phone}`] : []),
+  ]
+  const trip = [
+    `Destination: ${request.destination || 'Advice requested'}`,
+    `Experience: ${request.experience || 'Advice requested'}`,
+    `Preferred date: ${date}`,
+    `Travellers: ${request.guests ?? 'To be confirmed'}`,
   ]
   const message = [
-    `Hello Prestige Destinations Tours, I submitted a ${request.kind === 'booking' ? 'booking request' : 'travel enquiry'} on your website.`,
-    '', ...fields.map(([label, value]) => `${label}: ${value === '' || value == null ? 'Not provided' : value}`),
-    '', 'Trip details:', request.message,
-    '', 'Please follow up on my request. Availability is still to be confirmed.',
+    '*PRESTIGE DESTINATIONS TOURS*',
+    booking ? '*Booking Request*' : '*Travel Enquiry*',
+    '', 'Hello Prestige team,',
+    `I have submitted ${booking ? 'a booking request' : 'an enquiry'} through your website. Please find my details below.`,
+    '', '*Contact Details*', ...contact,
+    '', '*Trip Preferences*', ...trip,
+    '', '*Additional Details*', request.message.trim(),
+    '', booking ? 'Please confirm availability and advise on the next steps.' : 'Please advise on suitable options and the next steps.',
+    '', 'Thank you,', request.name,
   ].join('\n')
   const link = `${whatsapp}?text=${encodeURIComponent(message)}`
   return <div className="request-whatsapp">
