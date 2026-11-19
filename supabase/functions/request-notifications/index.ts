@@ -46,10 +46,17 @@ Deno.serve(async request => {
             sender: { email: from, name: 'Prestige Destinations Tours' },
             to: [{ email: mail.to }], replyTo: { email: mail.replyTo },
             subject: mail.subject, textContent: mail.text,
-            headers: { 'idempotencyKey': `prestige-request-${job.request.id}` },
+            headers: { 'idempotencyKey': job.request.id },
           }),
         })
-        if (!result.ok) throw new Error(`Brevo HTTP ${result.status}`)
+        if (!result.ok) {
+          const detail = await result.json().catch(() => ({}))
+          const reason = String(detail.message || detail.code || 'rejected')
+            .replace(/xkeysib-[A-Za-z0-9-]+/g, '[redacted]')
+            .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]')
+            .replace(/[\r\n]+/g, ' ').slice(0, 150)
+          throw new Error(`Brevo HTTP ${result.status}: ${reason}`)
+        }
         providerId = (await result.json()).messageId || ''
       } else {
         const result = await smtp!.sendMail({
@@ -63,7 +70,7 @@ Deno.serve(async request => {
     } catch (error) {
       failed++
       // Store only a code, never SMTP credentials or customer details from provider errors.
-      failure = provider === 'brevo' && /^Brevo HTTP \d+$/.test(error.message)
+      failure = provider === 'brevo' && /^Brevo HTTP \d+: /.test(error.message)
         ? error.message : `Mail delivery failed (${error.code || error.name || 'unknown'})`
     }
     const { error: finishError } = await db.rpc('finish_request_notification', {
